@@ -1,0 +1,31 @@
+{
+	"name": "oddevan/trainerdb",
+	"description": "Manage your Pokemon TCG collection",
+	"repositories":[
+			{
+					"type":"composer",
+					"url":"https://wpackagist.org"
+			},
+			{
+					"type": "git",
+					"url": "git@github.com:WebDevStudios/WDS-Required-Plugins.git"
+			}
+	],
+	"require": {
+			"wpackagist-plugin/advanced-custom-fields": "^5.8",
+			"wpackagist-theme/twentysixteen": "*",
+			"webdevstudios/wds-required-plugins": "^1.2"
+	},
+	"autoload": {
+			"psr-4": {
+					"oddEvan\\TrainerDB\\": "plugins/trainerdb/src/"
+			}
+	},
+	"extra": {
+			"installer-paths": {
+					"plugins/{$name}": ["type:wordpress-plugin"],
+					"mu-plugins/{$name}": ["type:wordpress-muplugin"],
+					"themes/{$name}": ["type:wordpress-theme"]
+			}
+	}
+}
