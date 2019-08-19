@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dc0e179a1419a8f042ee0190e19334da",
+    "content-hash": "cc2a647123a75d5bea0aa289fffabc65",
     "packages": [
         {
             "name": "composer/installers",
@@ -127,6 +127,43 @@
                 "zikula"
             ],
             "time": "2019-08-12T15:00:31+00:00"
+        },
+        {
+            "name": "webdevstudios/oops-wp",
+            "version": "0.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/WebDevStudios/oops-wp.git",
+                "reference": "bda6b19e002748b0ff1344ad5aee5f2685f78a4f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/WebDevStudios/oops-wp/zipball/bda6b19e002748b0ff1344ad5aee5f2685f78a4f",
+                "reference": "bda6b19e002748b0ff1344ad5aee5f2685f78a4f",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "WebDevStudios\\OopsWP\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Jeremy Ward",
+                    "role": "Senior Backend Engineer",
+                    "email": "jeremy.ward@webdevstudios.com"
+                }
+            ],
+            "description": "A collection of interfaces and class structures to promote object-oriented programming practices in WordPress.",
+            "time": "2019-04-01T22:18:00+00:00"
         },
         {
             "name": "webdevstudios/wds-required-plugins",

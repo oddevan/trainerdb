@@ -14,7 +14,8 @@
 	"require": {
 			"wpackagist-plugin/advanced-custom-fields": "^5.8",
 			"wpackagist-theme/twentysixteen": "*",
-			"webdevstudios/wds-required-plugins": "^1.2"
+			"webdevstudios/wds-required-plugins": "^1.2",
+		"webdevstudios/oops-wp": "^0.2.0"
 	},
 	"autoload": {
 			"psr-4": {
