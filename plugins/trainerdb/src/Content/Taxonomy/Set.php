@@ -44,7 +44,7 @@ class Set extends Taxonomy {
 		return [
 			'name'                       => _x( 'Sets', 'Taxonomy General Name', 'trainerdb' ),
 			'singular_name'              => _x( 'Set', 'Taxonomy Singular Name', 'trainerdb' ),
-			'menu_name'                  => __( 'Set', 'trainerdb' ),
+			'menu_name'                  => __( 'Sets', 'trainerdb' ),
 			'all_items'                  => __( 'All Sets', 'trainerdb' ),
 			'parent_item'                => __( 'Parent Set', 'trainerdb' ),
 			'parent_item_colon'          => __( 'Parent Set:', 'trainerdb' ),
