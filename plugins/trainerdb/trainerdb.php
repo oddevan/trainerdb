@@ -22,7 +22,5 @@ $plugin = new TrainerDB();
 $plugin->run();
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
-	require_once WP_CONTENT_DIR . '/vendor/autoload.php';
-	//die ( __DIR__ . '/../../vendor/autoload.php' );
 	\WP_CLI::add_command( 'trainerdb', new CLICommand() );
 }

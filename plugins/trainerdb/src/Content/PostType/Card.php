@@ -76,7 +76,7 @@ class Card extends PostType {
 		return [
 			'label'           => __( 'Card', 'trainerdb' ),
 			'description'     => __( 'A particular card', 'trainerdb' ),
-			'supports'        => [ 'custom-fields' ],
+			'supports'        => [ 'title', 'thumbnail', 'custom-fields' ],
 			'hierarchical'    => false,
 			'public'          => true,
 			'menu_position'   => 5,
