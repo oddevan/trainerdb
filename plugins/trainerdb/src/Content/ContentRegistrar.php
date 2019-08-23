@@ -38,6 +38,7 @@ class ContentRegistrar extends Service {
 	 */
 	protected $taxonomies = [
 		Taxonomy\Set::class,
+		Taxonomy\CardHash::class,
 	];
 
 	/**

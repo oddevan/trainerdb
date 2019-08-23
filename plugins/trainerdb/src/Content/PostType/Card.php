@@ -83,6 +83,7 @@ class Card extends PostType {
 			'menu_icon'       => 'dashicons-share-alt',
 			'capability_type' => 'post',
 			'show_in_rest'    => true,
+			'taxonomies'      => [ 'set', 'card_hash', 'post_tag' ],
 		];
 	}
 }

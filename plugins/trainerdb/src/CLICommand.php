@@ -67,16 +67,28 @@ class CLICommand extends \WP_CLI_Command {
 	public function import_cards() {
 		\WP_CLI::log( 'Querying pokemontcg.io...' );
 
-		$cards   = Pokemon::Card( [ 'verify' => false ] )->where( [ 'setCode' => 'sm9', 'pageSize' => 1000 ] )->all();
-		$team_up = term_exists( 'teu', 'set' );
+		$cards = Pokemon::Card( [ 'verify' => false ] )->where( [ 'setCode' => 'sm9', 'pageSize' => 1000 ] )->all();
+
 		foreach ( $cards as $card_obj ) {
 			$card = $card_obj->toArray();
+
+			$hash_text = $card['name'] . implode( ' ', $card['text'] );
+			if ( isset( $card['attacks'] ) ) {
+				foreach ( $card['attacks'] as $attack ) {
+					$hash_text .= $attack['name'] . $attack['text'];
+				}
+			}
+
 			$args = [
 				'post_type'   => 'card',
 				'post_title'  => $card['name'],
 				'post_status' => 'publish',
 				'post_name'   => $card['id'],
-				'tax_input'   => [ 'set' => $team_up['term_id'] ],
+				'tags_input'  => [ (string) md5( $hash_text ) ],
+				'tax_input'   => [
+					'set'       => [ 10 ],
+					'card_hash' => (string) md5( $hash_text ),
+				],
 				'meta_input'  => [
 					'card_number' => $card['number'],
 					'ptcg_id'     => $card['id'],
@@ -92,12 +104,25 @@ class CLICommand extends \WP_CLI_Command {
 			if ( is_wp_error( $result ) ) {
 				\WP_CLI::error( $result->get_error_message() );
 			}
+			\WP_CLI::success( print_r( $args ) );
 		}
 		\WP_CLI::success( 'Cards imported!' );
 	}
 
 	public function lapras() {
-		$existing = get_page_by_path( 'sm9-31', OBJECT, 'card' );
-		print_r( $existing->ID );
+		//$existing = get_page_by_path( 'sm9-31', OBJECT, 'card' );
+		//print_r( $existing->ID );
+
+		$cardArr = Pokemon::Card( [ 'verify' => false ] )->where( [ 'id' => 'sm9-171' ] )->all();
+		$card    = $cardArr[0]->toArray();
+
+		$hash_text = $card['name'] . implode( ' ', $card['text'] );
+		if ( isset( $card['attacks'] ) ) {
+			foreach ( $card['attacks'] as $attack ) {
+				$hash_text .= $attack['name'] . $attack['text'];
+			}
+		}
+
+		\WP_CLI::log( $hash_text );
 	}
 }
