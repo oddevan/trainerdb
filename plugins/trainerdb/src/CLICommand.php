@@ -121,9 +121,29 @@ class CLICommand extends \WP_CLI_Command {
 		);
 
 		$api_response = json_decode( $response['body'] );
-		$cards        = $api_response->results;
+		$tcg_cards    = $api_response->results;
 
-		foreach ( $cards as $card ) {
+		$pkm_cards    = Pokemon::Card( [ 'verify' => false ] )->where( [ 'setCode' => 'sm9', 'pageSize' => 1000 ] )->all();
+		$pk_api_cache = [];
+
+		foreach ( $pkm_cards as $card_obj ) {
+			$card = $card_obj->toArray();
+
+			$pk_api_cache[ $card['number'] ] = [
+				'name'    => $card['name'],
+				'ptcg_id' => $card['id'],
+			];
+
+			$hash_text = $card['name'] . implode( ' ', $card['text'] );
+			if ( isset( $card['attacks'] ) ) {
+				foreach ( $card['attacks'] as $attack ) {
+					$hash_text .= $attack['name'] . $attack['text'];
+				}
+			}
+			$pk_api_cache[ $card['number'] ]['hash'] = md5( $hash_text );
+		}
+
+		foreach ( $tcg_cards as $card ) {
 			$card_number = 0;
 			foreach ( $card->extendedData as $edat ) {
 				if ( 'Number' === $edat->name ) {
@@ -134,14 +154,18 @@ class CLICommand extends \WP_CLI_Command {
 
 			foreach ( $card->skus as $sku ) {
 				if ( 1 === $sku->languageId && 1 === $sku->conditionId ) {
+					$is_reverse = ( 77 === $sku->printingId );
+
 					$args = [
 						'post_type'   => 'card',
-						'post_status' => 'draft',
+						'post_title'  => $pk_api_cache[ $card_number ]['name'],
+						'post_status' => 'publish',
+						'post_name'   => $pk_api_cache[ $card_number ]['ptcg_id'] . ( $is_reverse ? 'r' : '' ),
 						'meta_input'  => [
 							'card_number'         => $card_number,
-							'ptcg_id'             => 'sm9-' . $card_number,
+							'ptcg_id'             => $pk_api_cache[ $card_number ]['ptcg_id'],
 							'tcgp_id'             => $sku->skuId,
-							'reverse_holographic' => ( 77 === $sku->printingId ),
+							'reverse_holographic' => $is_reverse,
 						],
 					];
 
@@ -149,7 +173,11 @@ class CLICommand extends \WP_CLI_Command {
 					if ( is_wp_error( $result ) ) {
 						\WP_CLI::error( $result->get_error_message() );
 					}
-					\WP_CLI::success( 'sm9-' . $card_number . ' imported.' );
+
+					wp_set_object_terms( $result, 10, 'set' );
+					wp_set_object_terms( $result, md5( $hash_text ), 'card_hash' );
+
+					\WP_CLI::success( 'Imported ' . $pk_api_cache[ $card_number ]['name'] );
 				}
 			}
 		}
