@@ -212,11 +212,11 @@ class CLICommand extends \WP_CLI_Command {
 				$sku = get_post_meta( $id, 'tcgp_id', true );
 
 				if ( $sku ) {
-					$these_cards[ $id ] = $sku;
+					$these_cards[ $sku ] = $id;
 				}
 			}
 
-			$sku_string = \implode( ',', $these_cards );
+			$sku_string = \implode( ',', array_keys( $these_cards ) );
 			$response   = wp_remote_get(
 				'http://api.tcgplayer.com/v1.32.0/pricing/sku/' . $sku_string,
 				[
@@ -227,13 +227,11 @@ class CLICommand extends \WP_CLI_Command {
 					],
 				]
 			);
+
 			$api_response = json_decode( $response['body'] );
 
 			foreach ( $api_response->results as $sku_info ) {
-				$id = array_search( $sku_info->skuId, $these_cards, true );
-				if ( $id ) {
-					update_post_meta( $id, 'tcgp_market_price', $sku_info->marketPrice );
-				}
+				update_post_meta( $these_cards[ $sku_info->skuId ], 'tcgp_market_price', $sku_info->marketPrice );
 			}
 
 			// Get more posts if they exist.
