@@ -182,4 +182,63 @@ class CLICommand extends \WP_CLI_Command {
 			}
 		}
 	}
+
+	/**
+	 * Iterate through all cards and get updated market pricing from TCGplayer
+	 */
+	public function update_prices() {
+		$query_args = [
+			'post_type'           => [ 'card' ],
+			'post_status'         => [ 'publish' ],
+			'nopaging'            => false,
+			'paged'               => 1,
+			'posts_per_page'      => '50',
+			'ignore_sticky_posts' => false,
+			'order'               => 'ASC',
+			'orderby'             => 'id',
+		];
+
+		$card_query = new \WP_Query( $query_args );
+
+		// While there are posts left to traverse...
+		while ( $card_query->have_posts() ) {
+			$these_cards = [];
+
+			// Traverse these posts.
+			while ( $card_query->have_posts() ) {
+				$card_query->the_post();
+
+				$id  = get_the_ID();
+				$sku = get_post_meta( $id, 'tcgp_id', true );
+
+				if ( $sku ) {
+					$these_cards[ $id ] = $sku;
+				}
+			}
+
+			$sku_string = \implode( ',', $these_cards );
+			$response   = wp_remote_get(
+				'http://api.tcgplayer.com/v1.32.0/pricing/sku/' . $sku_string,
+				[
+					'headers' => [
+						'Authorization' => 'Bearer ' . TCGPLAYER_ACCESS_TOKEN,
+						'Accept'        => 'application/json',
+						'Content-Type'  => 'application/json',
+					],
+				]
+			);
+			$api_response = json_decode( $response['body'] );
+
+			foreach ( $api_response->results as $sku_info ) {
+				$id = array_search( $sku_info->skuId, $these_cards, true );
+				if ( $id ) {
+					update_post_meta( $id, 'tcgp_market_price', $sku_info->marketPrice );
+				}
+			}
+
+			// Get more posts if they exist.
+			$query_args['paged']++;
+			$card_query = new \WP_Query( $query_args );
+		}
+	}
 }
