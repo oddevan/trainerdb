@@ -24,82 +24,32 @@ class CLICommand extends \WP_CLI_Command {
 	 * @since 0.1.0
 	 */
 	public function __construct() {
-		\WP_CLI::log( 'TrainerDB activated.' );
 	}
 
 	/**
-	 * Import all sets from PTCG / TCGP
+	 * Import all sets from PTCG; ignoring TCGplayer for this
 	 *
 	 * @author Evan Hildreth
 	 * @since 0.1.0
 	 */
 	public function import_sets() {
 		\WP_CLI::log( 'Querying pokemontcg.io...' );
-
-		$pk_sets  = Pokemon::Set( [ 'verify' => false ] )->all();
-
-		\WP_CLI::log( 'Querying TCGplayer...' );
-
-		$tcg_response = wp_remote_get(
-			'http://api.tcgplayer.com/v1.32.0/catalog/categories/3/groups?limit=200',
-			[
-				'headers' => [
-					'Authorization' => 'Bearer ' . TCGPLAYER_ACCESS_TOKEN,
-					'Accept'        => 'application/json',
-					'Content-Type'  => 'application/json',
-				],
-			]
-		);
-
-		$json_response = json_decode( $tcg_response['body'] );
-		$tcg_sets      = $json_response->results;
-
-		$all_sets = [];
-
-		foreach ( $pk_sets as $set_obj ) {
-			$pk_set = $set_obj->toArray();
-
-			$all_sets[ $set['ptcgoCode'] ] = [
-				'name'    => $set['name'],
-				'ptcg_id' => $set['code'],
+		$sets = Pokemon::Set( [ 'verify' => false ] )->all();
+		foreach ( $sets as $set_obj ) {
+			$set  = $set_obj->toArray();
+			$args = [
+				'name' => $set['name'],
+				'slug' => $set['ptcgoCode'],
 			];
-		}
 
-		foreach ( $tcg_sets as $tcg_set ) {
-			if ( ! isset( $all_sets[ $tcg_set->abbreviation ] ) ) {
-				$all_sets[ $tcg_set->abbreviation ] = [
-					'name' => $tcg_set->name,
-				];
-			}
-
-			$all_sets[ $tcg_set->abbreviation ]['tcgp_id'] = $tcg_set->groupId;
-		}
-
-		\WP_CLI::error( "Pokemon:\n" . print_r( $pk_sets, true ) . "\nTCGplayer:\n" . print_r( $tcg_sets, true ) . "\nAll:\n" . print_r( $all_sets, true ) );
-
-		foreach ( $all_sets as $slug => $set ) {
-			$existing = term_exists( $slug, 'set' );
-
+			$existing = term_exists( $set['ptcgoCode'], 'set' );
 			if ( isset( $existing['term_id'] ) ) {
-				wp_update_term( $existing['term_id'], 'set', [
-					'name' => $set['name'],
-					'slug' => $slug,
-				] );
+				wp_update_term( $existing['term_id'], 'set', $args );
 			} else {
-				$existing = wp_insert_term( $set['name'], 'set', [
-					'name' => $set['name'],
-					'slug' => $slug,
-				] );
+				$existing = wp_insert_term( $set['name'], 'set', $args );
 			}
 
-			if ( is_wp_error( $existing ) ) {
-				\WP_CLI::error( $existing->get_error_message() . "\n" . print_r( $set, true ) );
-			}
-
-			update_term_meta( $existing['term_id'], 'ptcg_id', $set['ptcg_id'] );
-			update_term_meta( $existing['term_id'], 'tcgp_id', $set['tcgp_id'] );
-
-			\WP_CLI::success( 'Set "' . $set['name'] . '" imported.' );
+			update_term_meta( $existing['term_id'], 'ptcg_id', $set['code'] );
 		}
 		\WP_CLI::success( 'Sets imported!' );
 	}
@@ -283,6 +233,47 @@ class CLICommand extends \WP_CLI_Command {
 			// Get more posts if they exist.
 			$query_args['paged']++;
 			$card_query = new \WP_Query( $query_args );
+		}
+	}
+
+	/**
+	 * Display all sets from both sources in a tabular data format for easy import
+	 * into a spreadsheet program.
+	 */
+	public function sets_for_spreadsheet() {
+		\WP_CLI::log( 'Querying pokemontcg.io...' );
+
+		$pk_sets  = Pokemon::Set( [ 'verify' => false ] )->all();
+
+		\WP_CLI::log( 'Querying TCGplayer...' );
+
+		$tcg_response = wp_remote_get(
+			'http://api.tcgplayer.com/v1.32.0/catalog/categories/3/groups?limit=200',
+			[
+				'headers' => [
+					'Authorization' => 'Bearer ' . TCGPLAYER_ACCESS_TOKEN,
+					'Accept'        => 'application/json',
+					'Content-Type'  => 'application/json',
+				],
+			]
+		);
+
+		$json_response = json_decode( $tcg_response['body'] );
+		$tcg_sets      = $json_response->results;
+
+		echo "\n\n\n";
+
+		echo "Pokemon TCG Developers:\nID\tName\tCode\n";
+		foreach ( $pk_sets as $set_obj ) {
+			$pk_set = $set_obj->toArray();
+			echo $pk_set['code'] . "\t" . $pk_set['name'] . "\t" . $pk_set['ptcgoCode'] . "\n";
+		}
+
+		echo "\n\n";
+
+		echo "TCGPlayer:\nID\tName\tCode\n";
+		foreach ( $tcg_sets as $tcg_set ) {
+			echo $tcg_set->groupId . "\t" . $tcg_set->name . "\t" . $tcg_set->abbreviation . "\n";
 		}
 	}
 }
