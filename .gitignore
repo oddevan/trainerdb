@@ -1,6 +1,8 @@
 /plugins/*
 /vendor/*
 /mu-plugins/*
+!/mu-plugins/trainerdb-required.php
 /themes/*
 !/plugins/index.php
 !/plugins/trainerdb/
+.DS_Store
