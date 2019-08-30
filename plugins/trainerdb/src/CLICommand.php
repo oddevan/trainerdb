@@ -276,4 +276,107 @@ class CLICommand extends \WP_CLI_Command {
 			echo $tcg_set->groupId . "\t" . $tcg_set->name . "\t" . $tcg_set->abbreviation . "\n";
 		}
 	}
+
+	public function get_cards() {
+		$set_ids = get_terms( array(
+			'taxonomy'   => 'set',
+			'hide_empty' => false,
+			'fields'     => 'ids',
+			'meta_query' => [
+				'relation' => 'AND',
+				[
+					'key'     => 'tcgp_id',
+					'compare' => '>',
+				],
+			],
+		) );
+
+		foreach ( $set_ids as $set_id ) {
+			$tcgp_cards = $this->get_tcgp_cards( get_term_meta( $set_id, 'tcgp_id', true ) );
+			$ptcg_cards = $this->get_ptcg_cards( get_term_meta( $set_id, 'ptcg_id', true ) );
+
+			foreach ( $tcgp_cards as $card ) {
+				$card_number = 0;
+				foreach ( $card->extendedData as $edat ) {
+					if ( 'Number' === $edat->name ) {
+						$card_number = $edat->value;
+						break;
+					}
+				}
+
+				foreach ( $card->skus as $sku ) {
+					if ( 1 === $sku->languageId && 1 === $sku->conditionId ) {
+						$is_reverse = ( 77 === $sku->printingId );
+
+						$args = [
+							'post_type'   => 'card',
+							'post_title'  => $ptcg_cards[ $card_number ]['name'],
+							'post_status' => 'publish',
+							'post_name'   => $ptcg_cards[ $card_number ]['ptcg_id'] . ( $is_reverse ? 'r' : '' ),
+							'meta_input'  => [
+								'card_number'         => $card_number,
+								'ptcg_id'             => $ptcg_cards[ $card_number ]['ptcg_id'],
+								'tcgp_id'             => $sku->skuId,
+								'reverse_holographic' => $is_reverse,
+							],
+						];
+
+						$result = wp_insert_post( $args, true );
+						if ( is_wp_error( $result ) ) {
+							\WP_CLI::error( $result->get_error_message() );
+						}
+
+						wp_set_object_terms( $result, $set_id, 'set' );
+						wp_set_object_terms( $result, md5( $ptcg_cards[ $card_number ]['hash'] ), 'card_hash' );
+
+						\WP_CLI::success( 'Imported ' . $ptcg_cards[ $card_number ]['name'] );
+					}
+				}
+			}
+		}
+	}
+
+	private function get_tcgp_cards( $set_tcgpid ) {
+		if ( ! $set_tcgpid || ! \is_numeric( $set_tcgpid ) || $set_tcgpid <= 0 ) {
+			return [];
+		}
+
+		$response = wp_remote_get(
+			'http://api.tcgplayer.com/v1.32.0/catalog/products?categoryId=3&productTypes=Cards&groupId=2377&getExtendedFields=true&includeSkus=true&offset=0&limit=200',
+			[
+				'headers' => [
+					'Authorization' => 'Bearer ' . TCGPLAYER_ACCESS_TOKEN,
+					'Accept'        => 'application/json',
+					'Content-Type'  => 'application/json',
+				],
+			]
+		);
+
+		$api_response = json_decode( $response['body'] );
+		return $api_response->results;
+	}
+
+	private function get_ptcg_cards( $set_ptcgid ) {
+		$pkm_cards    = Pokemon::Card( [ 'verify' => false ] )->where( [ 'setCode' => $set_ptcgid, 'pageSize' => 1000 ] )->all();
+		$pk_api_cache = [];
+
+		foreach ( $pkm_cards as $card_obj ) {
+			$card = $card_obj->toArray();
+
+			$pk_api_cache[ $card['number'] ] = [
+				'name'    => $card['name'],
+				'ptcg_id' => $card['id'],
+			];
+
+			$hash_text = $card['name'] . implode( ' ', $card['text'] );
+			if ( isset( $card['attacks'] ) ) {
+				foreach ( $card['attacks'] as $attack ) {
+					$hash_text .= $attack['name'] . $attack['text'];
+				}
+			}
+			$pk_api_cache[ $card['number'] ]['hash'] = md5( $hash_text );
+		}
+
+		return $pk_api_cache;
+	}
 }
