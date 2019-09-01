@@ -13,7 +13,7 @@
 	],
 	"require": {
 			"wpackagist-plugin/advanced-custom-fields": "^5.8",
-			"wpackagist-theme/twentysixteen": "*",
+			"wpackagist-theme/wp-bootstrap-starter": "*",
 			"webdevstudios/wds-required-plugins": "^1.2",
 		"webdevstudios/oops-wp": "^0.2.0",
 		"pokemon-tcg/pokemon-tcg-sdk-php": "^1.2"

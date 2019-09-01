@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ab9903735e54c6f682db3e8a3be82f8b",
+    "content-hash": "fd501f9d689b569497db980256704210",
     "packages": [
         {
             "name": "composer/installers",
@@ -594,22 +594,22 @@
             "homepage": "https://wordpress.org/plugins/advanced-custom-fields/"
         },
         {
-            "name": "wpackagist-theme/twentysixteen",
-            "version": "2.0",
+            "name": "wpackagist-theme/wp-bootstrap-starter",
+            "version": "3.2.7",
             "source": {
                 "type": "svn",
-                "url": "https://themes.svn.wordpress.org/twentysixteen/",
-                "reference": "2.0"
+                "url": "https://themes.svn.wordpress.org/wp-bootstrap-starter/",
+                "reference": "3.2.7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://downloads.wordpress.org/theme/twentysixteen.2.0.zip"
+                "url": "https://downloads.wordpress.org/theme/wp-bootstrap-starter.3.2.7.zip"
             },
             "require": {
                 "composer/installers": "~1.0"
             },
             "type": "wordpress-theme",
-            "homepage": "https://wordpress.org/themes/twentysixteen/"
+            "homepage": "https://wordpress.org/themes/wp-bootstrap-starter/"
         }
     ],
     "packages-dev": [],
