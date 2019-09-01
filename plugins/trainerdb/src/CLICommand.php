@@ -350,6 +350,9 @@ class CLICommand extends \WP_CLI_Command {
 					$hash_text .= $attack['name'] . $attack['text'];
 				}
 			}
+			if ( isset( $card['types'] ) ) {
+				$hash_text .= \implode( ' ', $card['types'] );
+			}
 			$pk_api_cache[ $card['number'] ]['hash'] = md5( $hash_text );
 		}
 
