@@ -287,62 +287,38 @@ class CLICommand extends \WP_CLI_Command {
 				[
 					'key'     => 'tcgp_id',
 					'compare' => '>',
+					'value'   => 0,
 				],
 			],
 		) );
 
 		foreach ( $set_ids as $set_id ) {
-			$tcgp_cards = $this->get_tcgp_cards( get_term_meta( $set_id, 'tcgp_id', true ) );
+			$quantity = 50;
+			$offset   = 0;
+
+			$tcgp_cards = $this->get_tcgp_cards( get_term_meta( $set_id, 'tcgp_id', true ), $quantity, $offset );
 			$ptcg_cards = $this->get_ptcg_cards( get_term_meta( $set_id, 'ptcg_id', true ) );
+			$set_slug   = get_term_by( 'id', $set_id, 'set' )->slug;
 
-			foreach ( $tcgp_cards as $card ) {
-				$card_number = 0;
-				foreach ( $card->extendedData as $edat ) {
-					if ( 'Number' === $edat->name ) {
-						$card_number = $edat->value;
-						break;
-					}
+			while ( ! empty( $tcgp_cards ) ) {
+				foreach ( $tcgp_cards as $card ) {
+					$this->import_single_card( $card, $ptcg_cards, $set_slug, $set_id );
 				}
 
-				foreach ( $card->skus as $sku ) {
-					if ( 1 === $sku->languageId && 1 === $sku->conditionId ) {
-						$is_reverse = ( 77 === $sku->printingId );
-
-						$args = [
-							'post_type'   => 'card',
-							'post_title'  => $ptcg_cards[ $card_number ]['name'],
-							'post_status' => 'publish',
-							'post_name'   => $ptcg_cards[ $card_number ]['ptcg_id'] . ( $is_reverse ? 'r' : '' ),
-							'meta_input'  => [
-								'card_number'         => $card_number,
-								'ptcg_id'             => $ptcg_cards[ $card_number ]['ptcg_id'],
-								'tcgp_id'             => $sku->skuId,
-								'reverse_holographic' => $is_reverse,
-							],
-						];
-
-						$result = wp_insert_post( $args, true );
-						if ( is_wp_error( $result ) ) {
-							\WP_CLI::error( $result->get_error_message() );
-						}
-
-						wp_set_object_terms( $result, $set_id, 'set' );
-						wp_set_object_terms( $result, md5( $ptcg_cards[ $card_number ]['hash'] ), 'card_hash' );
-
-						\WP_CLI::success( 'Imported ' . $ptcg_cards[ $card_number ]['name'] );
-					}
-				}
+				$offset    += $quantity;
+				$tcgp_cards = $this->get_tcgp_cards( get_term_meta( $set_id, 'tcgp_id', true ), $quantity, $offset );
 			}
 		}
 	}
 
-	private function get_tcgp_cards( $set_tcgpid ) {
+	private function get_tcgp_cards( $set_tcgpid, $quantity, $offset ) {
 		if ( ! $set_tcgpid || ! \is_numeric( $set_tcgpid ) || $set_tcgpid <= 0 ) {
 			return [];
 		}
 
 		$response = wp_remote_get(
-			'http://api.tcgplayer.com/v1.32.0/catalog/products?categoryId=3&productTypes=Cards&groupId=2377&getExtendedFields=true&includeSkus=true&offset=0&limit=200',
+			'http://api.tcgplayer.com/v1.32.0/catalog/products?categoryId=3&productTypes=Cards&groupId=' .
+				$set_tcgpid . '&getExtendedFields=true&includeSkus=true&offset=' . $offset . '&limit=' . $quantity,
 			[
 				'headers' => [
 					'Authorization' => 'Bearer ' . TCGPLAYER_ACCESS_TOKEN,
@@ -378,5 +354,85 @@ class CLICommand extends \WP_CLI_Command {
 		}
 
 		return $pk_api_cache;
+	}
+
+	private function import_single_card( $tcgp_card, $ptcg_cards, $set_slug, $set_id ) {
+		$card_number = 0;
+		$card_slug   = false;
+		foreach ( $tcgp_card->extendedData as $edat ) {
+			if ( 'Number' === $edat->name ) {
+				$card_number = $edat->value;
+				break;
+			}
+			if ( 'Card Type' === $edat->name && 0 === strpos( $edat->value, 'Basic ' ) ) {
+				switch ( $edat->value ) {
+					case 'Basic Grass Energy':
+						$card_slug = "$set_slug-eng-grs";
+						break;
+					case 'Basic Fighting Energy':
+						$card_slug = "$set_slug-eng-fit";
+						break;
+					case 'Basic Lightning Energy':
+						$card_slug = "$set_slug-eng-lgt";
+						break;
+					case 'Basic Metal Energy':
+						$card_slug = "$set_slug-eng-met";
+						break;
+					case 'Basic Psychic Energy':
+						$card_slug = "$set_slug-eng-psy";
+						break;
+					case 'Basic Fire Energy':
+						$card_slug = "$set_slug-eng-fir";
+						break;
+					case 'Basic Fairy Energy':
+						$card_slug = "$set_slug-eng-fay";
+						break;
+					case 'Basic Darkness Energy':
+						$card_slug = "$set_slug-eng-drk";
+						break;
+					case 'Basic Water Energy':
+						$card_slug = "$set_slug-eng-wtr";
+						break;
+				}
+				break;
+			}
+		}
+		if ( ! \is_numeric( $card_number ) ) {
+			$card_number = substr( $card_number, 0, strpos( $card_number, '/' ) );
+		}
+
+		$card_name = isset( $ptcg_cards[ $card_number ] ) ? $ptcg_cards[ $card_number ]['name'] : $tcgp_card->name;
+		if ( ! $card_slug ) {
+			$card_slug = "$set_slug-$card_number";
+		}
+
+		foreach ( $tcgp_card->skus as $sku ) {
+			if ( 1 === $sku->languageId && 1 === $sku->conditionId ) {
+				$is_reverse = ( 77 === $sku->printingId );
+
+				$args = [
+					'post_type'   => 'card',
+					'post_title'  => $card_name,
+					'post_status' => 'publish',
+					'post_name'   => $card_slug . ( $is_reverse ? 'r' : '' ),
+					'meta_input'  => [
+						'card_number'         => $card_number,
+						'ptcg_id'             => $ptcg_cards[ $card_number ]['ptcg_id'],
+						'tcgp_id'             => $sku->skuId,
+						'reverse_holographic' => $is_reverse,
+					],
+				];
+
+				$result = wp_insert_post( $args, true );
+				if ( is_wp_error( $result ) ) {
+					\WP_CLI::error( $result->get_error_message() );
+				}
+
+				wp_set_object_terms( $result, $set_id, 'set' );
+				wp_set_object_terms( $result, md5( $ptcg_cards[ $card_number ]['hash'] ), 'card_hash' );
+
+				\WP_CLI::success( 'Imported ' . $card_name );
+			}
+		}
 	}
 }
