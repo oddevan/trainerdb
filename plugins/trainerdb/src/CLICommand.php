@@ -354,6 +354,11 @@ class CLICommand extends \WP_CLI_Command {
 				$hash_text .= \implode( ' ', $card['types'] );
 			}
 			$pk_api_cache[ $card['number'] ]['hash'] = md5( $hash_text );
+
+			$att_id = $this->sideload_media( $card['imageUrlHiRes'], $card['name'] );
+			if ( ! is_wp_error( $att_id ) ) {
+				$pk_api_cache[ $card['number'] ]['img'] = $att_id;
+			}
 		}
 
 		return $pk_api_cache;
@@ -400,7 +405,7 @@ class CLICommand extends \WP_CLI_Command {
 				break;
 			}
 		}
-		if ( ! \is_numeric( $card_number ) ) {
+		if ( strpos( $card_number, '/' ) > 0 ) {
 			$card_number = substr( $card_number, 0, strpos( $card_number, '/' ) );
 		}
 
@@ -432,10 +437,47 @@ class CLICommand extends \WP_CLI_Command {
 				}
 
 				wp_set_object_terms( $result, $set_id, 'set' );
-				wp_set_object_terms( $result, md5( $ptcg_cards[ $card_number ]['hash'] ), 'card_hash' );
+				wp_set_object_terms( $result, $ptcg_cards[ $card_number ]['hash'], 'card_hash' );
+				if ( isset( $ptcg_cards[ $card_number ]['img'] ) ) {
+					set_post_thumbnail( $result, $ptcg_cards[ $card_number ]['img'] );
+				}
 
 				\WP_CLI::success( 'Imported ' . $card_name );
 			}
 		}
+	}
+
+	/**
+	 * Imports the media found at the given URL into the WP Media Library linked to the given post
+	 *
+	 * @param string $url Address of the remote media to import.
+	 * @param string $name Description of image.
+	 * @return int WordPress ID of imported media.
+	 */
+	private function sideload_media( $url, $name ) {
+		$tmp = download_url( $url );
+		if ( is_wp_error( $tmp ) ) {
+			return $tmp;
+		}
+		$post_id    = 1;
+		$file_array = array();
+		// Set variables for storage
+		// fix file filename for query strings.
+		preg_match( '/[^\?]+\.(jpg|jpe|jpeg|gif|png|mp4|m4v)/i', $url, $matches );
+		$file_array['name']     = basename( $matches[0] );
+		$file_array['tmp_name'] = $tmp;
+		// If error storing temporarily, unlink.
+		if ( is_wp_error( $tmp ) ) {
+			unlink( $file_array['tmp_name'] );
+			$file_array['tmp_name'] = '';
+		}
+		// do the validation and storage stuff.
+		$id = media_handle_sideload( $file_array, $post_id, $name );
+		// If error storing permanently, unlink.
+		if ( is_wp_error( $id ) ) {
+			unlink( $file_array['tmp_name'] );
+			return $id;
+		}
+		return $id;
 	}
 }
