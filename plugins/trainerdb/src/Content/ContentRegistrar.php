@@ -39,7 +39,8 @@ class ContentRegistrar extends Service {
 	protected $taxonomies = [
 		Taxonomy\Set::class,
 		Taxonomy\CardHash::class,
-		Taxonomy\Type::class,
+		Taxonomy\CardType::class,
+		Taxonomy\PokemonType::class,
 	];
 
 	/**

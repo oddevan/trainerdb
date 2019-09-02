@@ -55,128 +55,58 @@ class CLICommand extends \WP_CLI_Command {
 	}
 
 	/**
-	 * Import all cards in a given set from PTCG
+	 * Import all card and pokemon types from PTCG
 	 *
 	 * @author Evan Hildreth
 	 * @since 0.1.0
 	 */
-	public function import_cards() {
+	public function import_types() {
 		\WP_CLI::log( 'Querying pokemontcg.io...' );
-
-		$cards = Pokemon::Card( [ 'verify' => false ] )->where( [ 'setCode' => 'sm9', 'pageSize' => 1000 ] )->all();
-
-		foreach ( $cards as $card_obj ) {
-			$card = $card_obj->toArray();
-
-			$hash_text = $card['name'] . implode( ' ', $card['text'] );
-			if ( isset( $card['attacks'] ) ) {
-				foreach ( $card['attacks'] as $attack ) {
-					$hash_text .= $attack['name'] . $attack['text'];
-				}
-			}
-
+		$types = Pokemon::Type( [ 'verify' => false ] )->all();
+		foreach ( $types as $type ) {
 			$args = [
-				'post_type'   => 'card',
-				'post_title'  => $card['name'],
-				'post_status' => 'publish',
-				'post_name'   => $card['id'],
-				'meta_input'  => [
-					'card_number' => $card['number'],
-					'ptcg_id'     => $card['id'],
-				],
+				'name' => $type,
+				'slug' => sanitize_title( $type ),
 			];
 
-			$existing = get_page_by_path( $card['id'], OBJECT, 'card' );
-			if ( $existing ) {
-				$args['ID'] = $existing->ID;
+			$existing = term_exists( $args['slug'], 'pokemon_type' );
+			if ( isset( $existing['term_id'] ) ) {
+				wp_update_term( $existing['term_id'], 'pokemon_type', $args );
+			} else {
+				$existing = wp_insert_term( $type, 'pokemon_type', $args );
 			}
-
-			$result = wp_insert_post( $args, true );
-			if ( is_wp_error( $result ) ) {
-				\WP_CLI::error( $result->get_error_message() );
-			}
-
-			wp_set_object_terms( $result, 10, 'set' );
-			wp_set_object_terms( $result, md5( $hash_text ), 'card_hash' );
-
-			\WP_CLI::success( 'Imported ' . $card['name'] );
 		}
-		\WP_CLI::success( 'Cards imported!' );
-	}
 
-	public function tcgp() {
-		$response = wp_remote_get(
-			'http://api.tcgplayer.com/v1.32.0/catalog/products?categoryId=3&productTypes=Cards&groupId=2377&getExtendedFields=true&includeSkus=true&offset=0&limit=200',
-			[
-				'headers' => [
-					'Authorization' => 'Bearer ' . TCGPLAYER_ACCESS_TOKEN,
-					'Accept'        => 'application/json',
-					'Content-Type'  => 'application/json',
-				],
-			]
-		);
-
-		$api_response = json_decode( $response['body'] );
-		$tcg_cards    = $api_response->results;
-
-		$pkm_cards    = Pokemon::Card( [ 'verify' => false ] )->where( [ 'setCode' => 'sm9', 'pageSize' => 1000 ] )->all();
-		$pk_api_cache = [];
-
-		foreach ( $pkm_cards as $card_obj ) {
-			$card = $card_obj->toArray();
-
-			$pk_api_cache[ $card['number'] ] = [
-				'name'    => $card['name'],
-				'ptcg_id' => $card['id'],
+		$types = Pokemon::Supertype( [ 'verify' => false ] )->all();
+		foreach ( $types as $type ) {
+			$args = [
+				'name' => $type,
+				'slug' => sanitize_title( $type ),
 			];
 
-			$hash_text = $card['name'] . implode( ' ', $card['text'] );
-			if ( isset( $card['attacks'] ) ) {
-				foreach ( $card['attacks'] as $attack ) {
-					$hash_text .= $attack['name'] . $attack['text'];
-				}
-			}
-			$pk_api_cache[ $card['number'] ]['hash'] = md5( $hash_text );
-		}
-
-		foreach ( $tcg_cards as $card ) {
-			$card_number = 0;
-			foreach ( $card->extendedData as $edat ) {
-				if ( 'Number' === $edat->name ) {
-					$card_number = $edat->value;
-					break;
-				}
-			}
-
-			foreach ( $card->skus as $sku ) {
-				if ( 1 === $sku->languageId && 1 === $sku->conditionId ) {
-					$is_reverse = ( 77 === $sku->printingId );
-
-					$args = [
-						'post_type'   => 'card',
-						'post_title'  => $pk_api_cache[ $card_number ]['name'],
-						'post_status' => 'publish',
-						'post_name'   => $pk_api_cache[ $card_number ]['ptcg_id'] . ( $is_reverse ? 'r' : '' ),
-						'meta_input'  => [
-							'card_number'         => $card_number,
-							'ptcg_id'             => $pk_api_cache[ $card_number ]['ptcg_id'],
-							'tcgp_id'             => $sku->skuId,
-							'reverse_holographic' => $is_reverse,
-						],
-					];
-
-					$result = wp_insert_post( $args, true );
-					if ( is_wp_error( $result ) ) {
-						\WP_CLI::error( $result->get_error_message() );
-					}
-
-					wp_set_object_terms( $result, 10, 'set' );
-					wp_set_object_terms( $result, md5( $hash_text ), 'card_hash' );
-
-					\WP_CLI::success( 'Imported ' . $pk_api_cache[ $card_number ]['name'] );
-				}
+			$existing = term_exists( $args['slug'], 'card_type' );
+			if ( isset( $existing['term_id'] ) ) {
+				wp_update_term( $existing['term_id'], 'card_type', $args );
+			} else {
+				$existing = wp_insert_term( $type, 'card_type', $args );
 			}
 		}
+
+		$types = Pokemon::Subtype( [ 'verify' => false ] )->all();
+		foreach ( $types as $type ) {
+			$args = [
+				'name' => $type,
+				'slug' => sanitize_title( $type ),
+			];
+
+			$existing = term_exists( $args['slug'], 'card_type' );
+			if ( isset( $existing['term_id'] ) ) {
+				wp_update_term( $existing['term_id'], 'card_type', $args );
+			} else {
+				$existing = wp_insert_term( $type, 'card_type', $args );
+			}
+		}
+		\WP_CLI::success( 'Types imported!' );
 	}
 
 	/**
@@ -340,10 +270,16 @@ class CLICommand extends \WP_CLI_Command {
 			$card = $card_obj->toArray();
 
 			$pk_api_cache[ $card['number'] ] = [
-				'name'    => $card['name'],
-				'ptcg_id' => $card['id'],
+				'name'         => $card['name'],
+				'ptcg_id'      => $card['id'],
+				'image_url'    => $card['imageUrlHiRes'],
+				'card_types'   => [],
+				'pkm_types'    => [],
+				'hp'           => isset( $card['hp'] ) ? $card['hp'] : 0,
+				'retreat_cost' => isset( $card['convertedRetreatCost'] ) ? $card['convertedRetreatCost'] : 0,
 			];
 
+			// Create the hash.
 			$hash_text = $card['name'] . implode( ' ', $card['text'] );
 			if ( isset( $card['attacks'] ) ) {
 				foreach ( $card['attacks'] as $attack ) {
@@ -355,12 +291,26 @@ class CLICommand extends \WP_CLI_Command {
 			}
 			$pk_api_cache[ $card['number'] ]['hash'] = md5( $hash_text );
 
-			$att_id = $this->sideload_media( $card['imageUrlHiRes'], $card['name'] );
-			if ( ! is_wp_error( $att_id ) ) {
-				$pk_api_cache[ $card['number'] ]['img'] = $att_id;
+			// Match the given types to taxonomies and save them.
+			$supertype = term_exists( sanitize_title( $card['supertype'] ), 'card_type' );
+			if ( isset( $supertype['type_id'] ) ) {
+				$pk_api_cache[ $card['number'] ]['card_types'][] = $supertype['type_id'];
+			}
+			$subtype = term_exists( sanitize_title( $card['subtype'] ), 'card_type' );
+			if ( isset( $subtype['type_id'] ) ) {
+				$pk_api_cache[ $card['number'] ]['card_types'][] = $subtype['type_id'];
+			}
+			if ( isset( $card['types'] ) ) {
+				foreach ( $card['types'] as $type ) {
+					$pkm_type = term_exists( sanitize_title( $type ), 'pokemon_type' );
+					if ( isset( $pkm_type['type_id'] ) ) {
+						$pk_api_cache[ $card['number'] ]['pkm_types'][] = $pkm_type['type_id'];
+					}
+				}
 			}
 		}
 
+		\WP_CLI::error( print_r( $pk_api_cache, true ) );
 		return $pk_api_cache;
 	}
 
