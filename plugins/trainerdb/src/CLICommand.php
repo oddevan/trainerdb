@@ -275,8 +275,8 @@ class CLICommand extends \WP_CLI_Command {
 				'image_url'    => $card['imageUrlHiRes'],
 				'card_types'   => [],
 				'pkm_types'    => [],
-				'hp'           => isset( $card['hp'] ) ? $card['hp'] : 0,
-				'retreat_cost' => isset( $card['convertedRetreatCost'] ) ? $card['convertedRetreatCost'] : 0,
+				'hp'           => $card['hp'],
+				'retreat_cost' => $card['convertedRetreatCost'],
 			];
 
 			// Create the hash.
@@ -292,25 +292,16 @@ class CLICommand extends \WP_CLI_Command {
 			$pk_api_cache[ $card['number'] ]['hash'] = md5( $hash_text );
 
 			// Match the given types to taxonomies and save them.
-			$supertype = term_exists( sanitize_title( $card['supertype'] ), 'card_type' );
-			if ( isset( $supertype['type_id'] ) ) {
-				$pk_api_cache[ $card['number'] ]['card_types'][] = $supertype['type_id'];
-			}
-			$subtype = term_exists( sanitize_title( $card['subtype'] ), 'card_type' );
-			if ( isset( $subtype['type_id'] ) ) {
-				$pk_api_cache[ $card['number'] ]['card_types'][] = $subtype['type_id'];
-			}
+			$pk_api_cache[ $card['number'] ]['card_types'][] = sanitize_title( $card['supertype'] );
+			$pk_api_cache[ $card['number'] ]['card_types'][] = sanitize_title( $card['subtype'] );
+
 			if ( isset( $card['types'] ) ) {
 				foreach ( $card['types'] as $type ) {
-					$pkm_type = term_exists( sanitize_title( $type ), 'pokemon_type' );
-					if ( isset( $pkm_type['type_id'] ) ) {
-						$pk_api_cache[ $card['number'] ]['pkm_types'][] = $pkm_type['type_id'];
-					}
+					$pk_api_cache[ $card['number'] ]['pkm_types'][] = sanitize_title( $type );
 				}
 			}
 		}
 
-		\WP_CLI::error( print_r( $pk_api_cache, true ) );
 		return $pk_api_cache;
 	}
 
@@ -378,6 +369,9 @@ class CLICommand extends \WP_CLI_Command {
 						'ptcg_id'             => $ptcg_cards[ $card_number ]['ptcg_id'],
 						'tcgp_id'             => $sku->skuId,
 						'reverse_holographic' => $is_reverse,
+						'image_url'           => $ptcg_cards[ $card_number ]['image_url'],
+						'hp'                  => $ptcg_cards[ $card_number ]['hp'],
+						'retreat_cost'        => $ptcg_cards[ $card_number ]['retreat_cost'],
 					],
 				];
 
@@ -387,9 +381,12 @@ class CLICommand extends \WP_CLI_Command {
 				}
 
 				wp_set_object_terms( $result, $set_id, 'set' );
-				wp_set_object_terms( $result, $ptcg_cards[ $card_number ]['hash'], 'card_hash' );
-				if ( isset( $ptcg_cards[ $card_number ]['img'] ) ) {
-					set_post_thumbnail( $result, $ptcg_cards[ $card_number ]['img'] );
+				if ( isset( $ptcg_cards[ $card_number ] ) ) {
+					wp_set_object_terms( $result, $ptcg_cards[ $card_number ]['hash'], 'card_hash' );
+					wp_set_object_terms( $result, $ptcg_cards[ $card_number ]['card_types'], 'card_type' );
+					wp_set_object_terms( $result, $ptcg_cards[ $card_number ]['pkm_types'], 'pokemon_type' );
+				} else {
+					wp_set_object_terms( $result, 'x-no-hash', 'card_hash' );
 				}
 
 				\WP_CLI::success( 'Imported ' . $card_name );
