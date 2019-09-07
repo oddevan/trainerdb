@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fd501f9d689b569497db980256704210",
+    "content-hash": "1886a3926d406fd5260b8669bb4fa0da",
     "packages": [
         {
             "name": "composer/installers",
@@ -383,6 +383,47 @@
             "time": "2019-07-01T23:21:34+00:00"
         },
         {
+            "name": "ivome/graphql-relay-php",
+            "version": "v0.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ivome/graphql-relay-php.git",
+                "reference": "bc5f8aae9fd72ca16decce3892ec4311e9742a93"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ivome/graphql-relay-php/zipball/bc5f8aae9fd72ca16decce3892ec4311e9742a93",
+                "reference": "bc5f8aae9fd72ca16decce3892ec4311e9742a93",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4,<8.0-DEV",
+                "webonyx/graphql-php": ">=0.7.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8",
+                "satooshi/php-coveralls": "~1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD"
+            ],
+            "description": "A PHP port of GraphQL Relay reference implementation",
+            "homepage": "https://github.com/ivome/graphql-relay-php",
+            "keywords": [
+                "Relay",
+                "api",
+                "graphql"
+            ],
+            "time": "2016-10-29T23:29:29+00:00"
+        },
+        {
             "name": "pokemon-tcg/pokemon-tcg-sdk-php",
             "version": "1.2.0",
             "source": {
@@ -525,16 +566,16 @@
         },
         {
             "name": "webdevstudios/oops-wp",
-            "version": "0.2.0",
+            "version": "0.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WebDevStudios/oops-wp.git",
-                "reference": "bda6b19e002748b0ff1344ad5aee5f2685f78a4f"
+                "reference": "780dce74d0afe81500eba4aee7fe0bda8445d3db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WebDevStudios/oops-wp/zipball/bda6b19e002748b0ff1344ad5aee5f2685f78a4f",
-                "reference": "bda6b19e002748b0ff1344ad5aee5f2685f78a4f",
+                "url": "https://api.github.com/repos/WebDevStudios/oops-wp/zipball/780dce74d0afe81500eba4aee7fe0bda8445d3db",
+                "reference": "780dce74d0afe81500eba4aee7fe0bda8445d3db",
                 "shasum": ""
             },
             "require": {
@@ -553,12 +594,12 @@
             "authors": [
                 {
                     "name": "Jeremy Ward",
-                    "role": "Senior Backend Engineer",
-                    "email": "jeremy.ward@webdevstudios.com"
+                    "email": "jeremy.ward@webdevstudios.com",
+                    "role": "Senior Backend Engineer"
                 }
             ],
             "description": "A collection of interfaces and class structures to promote object-oriented programming practices in WordPress.",
-            "time": "2019-04-01T22:18:00+00:00"
+            "time": "2019-09-03T00:45:21+00:00"
         },
         {
             "name": "webdevstudios/wds-required-plugins",
@@ -574,6 +615,134 @@
             "type": "wordpress-muplugin",
             "description": "Make certain plugins required so that they cannot be (easily) deactivated.",
             "time": "2019-05-01T18:39:18+00:00"
+        },
+        {
+            "name": "webonyx/graphql-php",
+            "version": "v0.12.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/webonyx/graphql-php.git",
+                "reference": "4c545e5ec4fc37f6eb36c19f5a0e7feaf5979c95"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/webonyx/graphql-php/zipball/4c545e5ec4fc37f6eb36c19f5a0e7feaf5979c95",
+                "reference": "4c545e5ec4fc37f6eb36c19f5a0e7feaf5979c95",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8",
+                "psr/http-message": "^1.0",
+                "react/promise": "2.*"
+            },
+            "suggest": {
+                "psr/http-message": "To use standard GraphQL server",
+                "react/promise": "To leverage async resolving on React PHP platform"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "GraphQL\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "A PHP port of GraphQL reference implementation",
+            "homepage": "https://github.com/webonyx/graphql-php",
+            "keywords": [
+                "api",
+                "graphql"
+            ],
+            "time": "2018-09-02T14:59:54+00:00"
+        },
+        {
+            "name": "wp-graphql/wp-graphiql",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:wp-graphql/wp-graphiql.git",
+                "reference": "7c0830215cb166e3015d7c8c9e20ce500d98dc49"
+            },
+            "type": "wordpress-plugin",
+            "license": [
+                "GPL-3.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Jason Bahl",
+                    "email": "jasonbahl@mac.com"
+                }
+            ],
+            "description": "GraphiQL IDE in the WP-Admin. Works with the WPGraphQL plugin. https://github.com/wp-graphql/wp-graphql",
+            "time": "2019-08-13T21:38:34+00:00"
+        },
+        {
+            "name": "wp-graphql/wp-graphql",
+            "version": "v0.3.5",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:wp-graphql/wp-graphql.git",
+                "reference": "f5061cbf82d0408a5bb5d6257e76d4484edbd104"
+            },
+            "require": {
+                "ivome/graphql-relay-php": "^0.3.1",
+                "webonyx/graphql-php": "0.12.6"
+            },
+            "require-dev": {
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0",
+                "lucatume/wp-browser": "^2.2.",
+                "phpcompatibility/phpcompatibility-wp": "^2.0",
+                "wp-coding-standards/wpcs": "^2.1"
+            },
+            "type": "wordpress-plugin",
+            "autoload": {
+                "psr-4": {
+                    "WPGraphQL\\": "src/"
+                },
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpcs-i": [
+                    "@php ./vendor/bin/phpcs -i"
+                ],
+                "check-cs": [
+                    "@php ./vendor/bin/phpcs"
+                ],
+                "fix-cs": [
+                    "@php ./vendor/bin/phpcbf"
+                ]
+            },
+            "license": [
+                "GPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Jason Bahl",
+                    "email": "jasonbahl@mac.com"
+                },
+                {
+                    "name": "Edwin Cromley"
+                },
+                {
+                    "name": "Ryan Kanner"
+                },
+                {
+                    "name": "Hughie Devore"
+                },
+                {
+                    "name": "Chris Zarate"
+                }
+            ],
+            "description": "GraphQL API for WordPress",
+            "time": "2019-08-16T16:31:09+00:00"
         },
         {
             "name": "wpackagist-plugin/advanced-custom-fields",

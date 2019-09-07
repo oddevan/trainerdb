@@ -2,32 +2,42 @@
 	"name": "oddevan/trainerdb",
 	"description": "Manage your Pokemon TCG collection",
 	"repositories":[
-			{
-					"type":"composer",
-					"url":"https://wpackagist.org"
-			},
-			{
-					"type": "git",
-					"url": "git@github.com:WebDevStudios/WDS-Required-Plugins.git"
-			}
+		{
+			"type":"composer",
+			"url":"https://wpackagist.org"
+		},
+    {
+      "type": "git",
+      "url": "git@github.com:wp-graphql/wp-graphql.git"
+    },
+    {
+      "type": "git",
+      "url": "git@github.com:wp-graphql/wp-graphiql.git"
+    },
+		{
+			"type": "git",
+			"url": "git@github.com:WebDevStudios/WDS-Required-Plugins.git"
+		}
 	],
 	"require": {
-			"wpackagist-plugin/advanced-custom-fields": "^5.8",
-			"wpackagist-theme/wp-bootstrap-starter": "*",
-			"webdevstudios/wds-required-plugins": "^1.2",
+		"wpackagist-plugin/advanced-custom-fields": "^5.8",
+		"wpackagist-theme/wp-bootstrap-starter": "*",
+		"webdevstudios/wds-required-plugins": "^1.2",
 		"webdevstudios/oops-wp": "^0.2.0",
-		"pokemon-tcg/pokemon-tcg-sdk-php": "^1.2"
+		"pokemon-tcg/pokemon-tcg-sdk-php": "^1.2",
+		"wp-graphql/wp-graphql": "^0.3.5",
+		"wp-graphql/wp-graphiql": "^1.0.0"
 	},
 	"autoload": {
-			"psr-4": {
-					"oddEvan\\TrainerDB\\": "plugins/trainerdb/src/"
-			}
+		"psr-4": {
+			"oddEvan\\TrainerDB\\": "plugins/trainerdb/src/"
+		}
 	},
 	"extra": {
-			"installer-paths": {
-					"plugins/{$name}": ["type:wordpress-plugin"],
-					"mu-plugins/{$name}": ["type:wordpress-muplugin"],
-					"themes/{$name}": ["type:wordpress-theme"]
-			}
+		"installer-paths": {
+			"plugins/{$name}": ["type:wordpress-plugin"],
+			"mu-plugins/{$name}": ["type:wordpress-muplugin"],
+			"themes/{$name}": ["type:wordpress-theme"]
+		}
 	}
 }
