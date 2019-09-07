@@ -388,7 +388,7 @@ class CLICommand extends \WP_CLI_Command {
 
 		$card_name = isset( $ptcg_cards[ $card_number ] ) ? $ptcg_cards[ $card_number ]['name'] : $tcgp_card->name;
 		if ( ! $card_slug ) {
-			$card_slug = "$set_slug-$card_number";
+			$card_slug = $set_slug . '-' . filter_var( $card_number, FILTER_SANITIZE_NUMBER_INT );
 		}
 
 		foreach ( $tcgp_card->skus as $sku ) {
@@ -401,7 +401,7 @@ class CLICommand extends \WP_CLI_Command {
 					'post_status' => 'publish',
 					'post_name'   => $card_slug . ( $is_reverse ? 'r' : '' ),
 					'meta_input'  => [
-						'card_number'         => $card_number,
+						'card_number'         => filter_var( $card_number, FILTER_SANITIZE_NUMBER_INT ),
 						'ptcg_id'             => $ptcg_cards[ $card_number ]['ptcg_id'],
 						'tcgp_id'             => $sku->skuId,
 						'reverse_holographic' => $is_reverse,
