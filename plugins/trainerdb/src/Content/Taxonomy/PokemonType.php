@@ -75,7 +75,10 @@ class PokemonType extends Taxonomy {
 	 */
 	protected function get_args() : array {
 		return [
-			'hierarchical' => true,
+			'hierarchical'        => true,
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'PokemonType',
+			'graphql_plural_name' => 'PokemonTypes',
 		];
 	}
 }

@@ -74,16 +74,19 @@ class Card extends PostType {
 	 */
 	protected function get_args() : array {
 		return [
-			'label'           => __( 'Card', 'trainerdb' ),
-			'description'     => __( 'A particular card', 'trainerdb' ),
-			'supports'        => [ 'title', 'thumbnail', 'custom-fields' ],
-			'hierarchical'    => false,
-			'public'          => true,
-			'menu_position'   => 5,
-			'menu_icon'       => 'dashicons-share-alt',
-			'capability_type' => 'post',
-			'show_in_rest'    => true,
-			'taxonomies'      => [ 'set', 'card_hash' ],
+			'label'               => __( 'Card', 'trainerdb' ),
+			'description'         => __( 'A particular card', 'trainerdb' ),
+			'supports'            => [ 'title', 'thumbnail', 'custom-fields' ],
+			'hierarchical'        => false,
+			'public'              => true,
+			'menu_position'       => 5,
+			'menu_icon'           => 'dashicons-share-alt',
+			'capability_type'     => 'post',
+			'show_in_rest'        => true,
+			'taxonomies'          => [ 'set', 'card_hash' ],
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'Card',
+			'graphql_plural_name' => 'Cards',
 		];
 	}
 }
