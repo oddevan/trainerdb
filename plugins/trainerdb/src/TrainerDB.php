@@ -26,6 +26,7 @@ class TrainerDB extends Plugin {
 	 */
 	protected $services = [
 		Content\ContentRegistrar::class,
+		Hook\HookRegistrar::class,
 	];
 
 }

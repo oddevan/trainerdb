@@ -41,7 +41,6 @@ class ContentRegistrar extends Service {
 		Taxonomy\CardHash::class,
 		Taxonomy\CardType::class,
 		Taxonomy\PokemonType::class,
-		Taxonomy\UserLibrary::class,
 	];
 
 	/**

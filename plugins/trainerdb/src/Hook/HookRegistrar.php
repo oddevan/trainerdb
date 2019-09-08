@@ -18,7 +18,7 @@ use WebDevStudios\OopsWP\Structure\Service;
 class HookRegistrar extends Service {
 
 	/**
-	 * List of PostType classes that should be registered
+	 * List of Service classes that should be registered
 	 * by this service
 	 *
 	 * @var Array $post_types array of PostType classes
@@ -31,25 +31,15 @@ class HookRegistrar extends Service {
 	];
 
 	/**
-	 * Called by Plugin class; register the hooks for this plugin
+	 * Called by Plugin class; iterate through subhooks and register them
 	 *
 	 * @since 0.1.0
 	 * @author me@eph.me
 	 */
 	public function register_hooks() {
-		add_action( 'init', [ $this, 'register_subhooks' ] );
-	}
-
-	/**
-	 * Iterate through $post_types and register them.
-	 *
-	 * @since 0.1.0
-	 * @author me@eph.me
-	 */
-	public function register_subhooks() {
 		foreach ( $this->subhooks as $hook_class ) {
 			$hook_type = new $hook_class();
-			$hook_type->register();
+			$hook_type->register_hooks();
 		}
 	}
 }
