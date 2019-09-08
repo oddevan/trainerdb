@@ -112,7 +112,7 @@ class ACF extends Service {
 					'type'  => 'number',
 				),
 			),
-			'location' => array(
+			'location'              => array(
 				array(
 					array(
 						'param'    => 'post_type',
