@@ -75,7 +75,10 @@ class CardHash extends Taxonomy {
 	 */
 	protected function get_args() : array {
 		return [
-			'hierarchical' => false,
+			'hierarchical'        => false,
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'CardHash',
+			'graphql_plural_name' => 'CardHashes',
 		];
 	}
 }

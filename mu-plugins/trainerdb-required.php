@@ -21,6 +21,7 @@ function wds_required_plugins_add( $required ) {
 	$required = array_merge( $required, array(
 		'advanced-custom-fields/acf.php',
 		'trainerdb/trainerdb.php',
+		'wp-graphql/wp-graphql.php',
 	) );
 
 	return $required;
