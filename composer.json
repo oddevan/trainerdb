@@ -8,15 +8,15 @@
 		},
     {
       "type": "git",
-      "url": "git@github.com:wp-graphql/wp-graphql.git"
+      "url": "https://github.com/wp-graphql/wp-graphql.git"
     },
     {
       "type": "git",
-      "url": "git@github.com:wp-graphql/wp-graphiql.git"
+      "url": "https://github.com/wp-graphql/wp-graphiql.git"
     },
 		{
 			"type": "git",
-			"url": "git@github.com:WebDevStudios/WDS-Required-Plugins.git"
+			"url": "https://github.com/WebDevStudios/WDS-Required-Plugins.git"
 		}
 	],
 	"require": {

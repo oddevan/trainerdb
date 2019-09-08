@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1886a3926d406fd5260b8669bb4fa0da",
+    "content-hash": "828cdfba8f144423867c9bfa698e24cc",
     "packages": [
         {
             "name": "composer/installers",
@@ -606,7 +606,7 @@
             "version": "1.2.0",
             "source": {
                 "type": "git",
-                "url": "git@github.com:WebDevStudios/WDS-Required-Plugins.git",
+                "url": "https://github.com/WebDevStudios/WDS-Required-Plugins.git",
                 "reference": "cc123b16aed291fb3a53ae16d63d5a3d1e336090"
             },
             "require": {
@@ -666,7 +666,7 @@
             "version": "1.0.0",
             "source": {
                 "type": "git",
-                "url": "git@github.com:wp-graphql/wp-graphiql.git",
+                "url": "https://github.com/wp-graphql/wp-graphiql.git",
                 "reference": "7c0830215cb166e3015d7c8c9e20ce500d98dc49"
             },
             "type": "wordpress-plugin",
@@ -687,7 +687,7 @@
             "version": "v0.3.5",
             "source": {
                 "type": "git",
-                "url": "git@github.com:wp-graphql/wp-graphql.git",
+                "url": "https://github.com/wp-graphql/wp-graphql.git",
                 "reference": "f5061cbf82d0408a5bb5d6257e76d4484edbd104"
             },
             "require": {
