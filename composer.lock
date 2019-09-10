@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "828cdfba8f144423867c9bfa698e24cc",
+    "content-hash": "fcc823fc355412059565026eafc8e33b",
     "packages": [
         {
             "name": "composer/installers",
@@ -761,6 +761,24 @@
             },
             "type": "wordpress-plugin",
             "homepage": "https://wordpress.org/plugins/advanced-custom-fields/"
+        },
+        {
+            "name": "wpackagist-plugin/webhook-netlify-deploy",
+            "version": "1.1.0",
+            "source": {
+                "type": "svn",
+                "url": "https://plugins.svn.wordpress.org/webhook-netlify-deploy/",
+                "reference": "trunk"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://downloads.wordpress.org/plugin/webhook-netlify-deploy.zip?timestamp=1567510801"
+            },
+            "require": {
+                "composer/installers": "~1.0"
+            },
+            "type": "wordpress-plugin",
+            "homepage": "https://wordpress.org/plugins/webhook-netlify-deploy/"
         },
         {
             "name": "wpackagist-theme/wp-bootstrap-starter",
