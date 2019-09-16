@@ -4,8 +4,43 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fcc823fc355412059565026eafc8e33b",
+    "content-hash": "a9706cd527e78c236dfe3da4cd4e0e23",
     "packages": [
+        {
+            "name": "alleyinteractive/wordpress-fieldmanager",
+            "version": "1.2.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/alleyinteractive/wordpress-fieldmanager.git",
+                "reference": "5942c280c0415b4592f81376df024fa4e47a9517"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/alleyinteractive/wordpress-fieldmanager/zipball/5942c280c0415b4592f81376df024fa4e47a9517",
+                "reference": "5942c280c0415b4592f81376df024fa4e47a9517",
+                "shasum": ""
+            },
+            "require": {
+                "composer/installers": "~1.0"
+            },
+            "require-dev": {
+                "squizlabs/php_codesniffer": "2.*",
+                "wp-coding-standards/wpcs": "^1"
+            },
+            "type": "wordpress-plugin",
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Alley Interactive",
+                    "email": "noreply@alleyinteractive.com"
+                }
+            ],
+            "keywords": [
+                "plugin",
+                "wordpress"
+            ],
+            "time": "2019-01-11T15:44:47+00:00"
+        },
         {
             "name": "composer/installers",
             "version": "v1.7.0",

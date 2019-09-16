@@ -9,6 +9,8 @@
 namespace oddEvan\TrainerDB\Hook\Card;
 
 use WebDevStudios\OopsWP\Structure\Service;
+use \Fieldmanager_Textfield;
+use \Fieldmanager_Group;
 
 /**
  * Registrar class to register our custom post types
@@ -26,6 +28,7 @@ class ACF extends Service {
 	public function register_hooks() {
 		add_action( 'acf/init', [ $this, 'add_card_acf_fields' ] );
 		add_action( 'acf/init', [ $this, 'add_pokemon_acf_fields' ] );
+		add_action( 'fm_post_card', [ $this, 'add_card_fm_fields' ] );
 	}
 
 	/**
@@ -133,5 +136,26 @@ class ACF extends Service {
 			'instruction_placement' => 'label',
 			'active'                => true,
 		) );
+	}
+
+	public function add_card_fm_fields() {
+		$fm = new Fieldmanager_Group( array(
+			'name'           => 'attacks',
+			'limit'          => 0,
+			'label'          => 'New Attack',
+			'label_macro'    => array( 'Attack: %s', 'name' ),
+			'add_more_label' => 'Add another attack',
+			'children'       => array(
+				'name'   => new Fieldmanager_Textfield( 'Name' ),
+				'cost'   => new \Fieldmanager_Select( [
+					'name'       => 'cost',
+					'datasource' => new \Fieldmanager_Datasource_Term( [ 'taxonomy' => 'pokemon_type' ] ),
+					'limit'      => 0,
+				] ),
+				'damage' => new Fieldmanager_Textfield( 'Base Damage' ),
+				'text'   => new Fieldmanager_Textfield( 'Text' ),
+			),
+		) );
+		$fm->add_meta_box( 'Attacks', 'card' );
 	}
 }

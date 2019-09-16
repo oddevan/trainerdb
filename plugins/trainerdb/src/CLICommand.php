@@ -10,6 +10,7 @@
 namespace oddEvan\TrainerDB;
 
 use Pokemon\Pokemon;
+use \WP_CLI;
 
 /**
  * Class to handle the WP-CLI commands. May refactor logic out to different class eventually.
@@ -274,6 +275,7 @@ class CLICommand extends \WP_CLI_Command {
 				$offset    += $quantity;
 				$tcgp_cards = $this->get_tcgp_cards( get_term_meta( $set_id, 'tcgp_id', true ), $quantity, $offset );
 			}
+			WP_CLI::error( 'breaking early' );
 		}
 	}
 
@@ -313,6 +315,7 @@ class CLICommand extends \WP_CLI_Command {
 				'pkm_types'    => [],
 				'hp'           => $card['hp'],
 				'retreat_cost' => $card['convertedRetreatCost'],
+				'attacks'      => $card['attacks'],
 			];
 
 			// Create the hash.
@@ -342,51 +345,43 @@ class CLICommand extends \WP_CLI_Command {
 	}
 
 	private function import_single_card( $tcgp_card, $ptcg_cards, $set_slug, $set_id ) {
-		$card_number = 0;
-		$card_slug   = false;
-		foreach ( $tcgp_card->extendedData as $edat ) {
-			if ( 'Number' === $edat->name ) {
-				$card_number = $edat->value;
-				break;
+		$card_slug = false;
+		$card_info = $this->parse_tcg_card_info( $tcgp_card );
+
+		if ( 0 === strpos( $card_info['card_type'], 'Basic ' ) ) {
+			switch ( $card_info['card_type'] ) {
+				case 'Basic Grass Energy':
+					$card_slug = "$set_slug-eng-g";
+					break;
+				case 'Basic Fighting Energy':
+					$card_slug = "$set_slug-eng-f";
+					break;
+				case 'Basic Lightning Energy':
+					$card_slug = "$set_slug-eng-l";
+					break;
+				case 'Basic Metal Energy':
+					$card_slug = "$set_slug-eng-m";
+					break;
+				case 'Basic Psychic Energy':
+					$card_slug = "$set_slug-eng-p";
+					break;
+				case 'Basic Fire Energy':
+					$card_slug = "$set_slug-eng-r";
+					break;
+				case 'Basic Fairy Energy':
+					$card_slug = "$set_slug-eng-y";
+					break;
+				case 'Basic Darkness Energy':
+					$card_slug = "$set_slug-eng-d";
+					break;
+				case 'Basic Water Energy':
+					$card_slug = "$set_slug-eng-w";
+					break;
 			}
-			if ( 'Card Type' === $edat->name && 0 === strpos( $edat->value, 'Basic ' ) ) {
-				switch ( $edat->value ) {
-					case 'Basic Grass Energy':
-						$card_slug = "$set_slug-eng-grs";
-						break;
-					case 'Basic Fighting Energy':
-						$card_slug = "$set_slug-eng-fit";
-						break;
-					case 'Basic Lightning Energy':
-						$card_slug = "$set_slug-eng-lgt";
-						break;
-					case 'Basic Metal Energy':
-						$card_slug = "$set_slug-eng-met";
-						break;
-					case 'Basic Psychic Energy':
-						$card_slug = "$set_slug-eng-psy";
-						break;
-					case 'Basic Fire Energy':
-						$card_slug = "$set_slug-eng-fir";
-						break;
-					case 'Basic Fairy Energy':
-						$card_slug = "$set_slug-eng-fay";
-						break;
-					case 'Basic Darkness Energy':
-						$card_slug = "$set_slug-eng-drk";
-						break;
-					case 'Basic Water Energy':
-						$card_slug = "$set_slug-eng-wtr";
-						break;
-				}
-				break;
-			}
-		}
-		if ( strpos( $card_number, '/' ) > 0 ) {
-			$card_number = substr( $card_number, 0, strpos( $card_number, '/' ) );
 		}
 
-		$card_name = isset( $ptcg_cards[ $card_number ] ) ? $ptcg_cards[ $card_number ]['name'] : $tcgp_card->name;
+		$card_number = $card_info['card_number'];
+		$card_name   = isset( $ptcg_cards[ $card_number ] ) ? $ptcg_cards[ $card_number ]['name'] : $tcgp_card->name;
 		if ( ! $card_slug ) {
 			$card_slug = $set_slug . '-' . filter_var( $card_number, FILTER_SANITIZE_NUMBER_INT );
 		}
@@ -410,6 +405,15 @@ class CLICommand extends \WP_CLI_Command {
 						'retreat_cost'        => $ptcg_cards[ $card_number ]['retreat_cost'],
 					],
 				];
+
+				foreach ( $ptcg_cards[ $card_number ]['attacks'] as $attack ) {
+					array_walk( $attack['cost'], function( &$value, $key ) {
+						$tax   = get_term_by( 'slug', sanitize_title( $value ), 'pokemon_type' );
+						$value = $tax ? $tax->term_id : $value;
+					} );
+
+					$args['meta_input']['attacks'][] = $attack;
+				}
 
 				$result = wp_insert_post( $args, true );
 				if ( is_wp_error( $result ) ) {
@@ -462,5 +466,47 @@ class CLICommand extends \WP_CLI_Command {
 			return $id;
 		}
 		return $id;
+	}
+
+	private function parse_tcg_card_info( $tcgp_card ) {
+		$card_info = [];
+
+		foreach ( $tcgp_card->extendedData as $edat ) { // phpcs:ignore
+			switch ( $edat->name ) {
+				case 'Number':
+					$card_info['card_number'] = $edat->value;
+					if ( strpos( $card_info['card_number'], '/' ) > 0 ) {
+						$card_info['card_number'] = substr( $card_info['card_number'], 0, strpos( $card_info['card_number'], '/' ) );
+					}
+					break;
+				case 'Rarity':
+					$card_info['rarity'] = $edat->value;
+					break;
+				case 'Card Type':
+					$card_info['card_type'] = $edat->value;
+					break;
+				case 'CardText':
+					$card_info['text'] = $edat->value;
+					break;
+				case 'HP':
+					$card_info['hp'] = $edat->value;
+					break;
+				case 'Stage':
+					$card_info['pokemon_stage'] = $edat->value;
+					break;
+				case 'Attack 1':
+				case 'Attack 2':
+				case 'Attack 3':
+				case 'Attack 4':
+					$card_info['attacks'][] = $edat->value;
+					break;
+			}
+		}
+
+		return $card_info;
+	}
+
+	public function zzz() {
+		WP_CLI::log( print_r( get_post_meta( 33, 'attacks', true ), true ) );
 	}
 }
