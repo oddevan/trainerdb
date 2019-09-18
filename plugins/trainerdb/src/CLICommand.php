@@ -275,7 +275,6 @@ class CLICommand extends \WP_CLI_Command {
 				$offset    += $quantity;
 				$tcgp_cards = $this->get_tcgp_cards( get_term_meta( $set_id, 'tcgp_id', true ), $quantity, $offset );
 			}
-			WP_CLI::error( 'breaking early' );
 		}
 	}
 
@@ -316,25 +315,13 @@ class CLICommand extends \WP_CLI_Command {
 				'hp'              => $card['hp'],
 				'retreat_cost'    => $card['convertedRetreatCost'],
 				'attacks'         => $card['attacks'],
-				'text'            => $card['text'],
+				'text'            => implode( ' ', $card['text'] ),
 				'weakness_type'   => null,
 				'weakness_mod'    => null,
 				'resistance_type' => null,
 				'resistance_mod'  => null,
 				'evolves_from'    => isset( $card['evolvesFrom'] ) ? $card['evolvesFrom'] : null,
 			];
-
-			// Create the hash.
-			$hash_text = $card['name'] . implode( ' ', $card['text'] );
-			if ( isset( $card['attacks'] ) ) {
-				foreach ( $card['attacks'] as $attack ) {
-					$hash_text .= $attack['name'] . $attack['text'];
-				}
-			}
-			if ( isset( $card['types'] ) ) {
-				$hash_text .= \implode( ' ', $card['types'] );
-			}
-			$pk_api_cache[ $card['number'] ]['hash'] = md5( $hash_text );
 
 			// Match the given types to taxonomies and save them.
 			$pk_api_cache[ $card['number'] ]['card_types'][] = sanitize_title( $card['supertype'] );
@@ -399,7 +386,7 @@ class CLICommand extends \WP_CLI_Command {
 		$is_pokemon  = $has_ptcg && in_array( 'pokemon', $ptcg_cards[ $card_number ]['card_types'], true );
 		$card_name   = $has_ptcg ? $ptcg_cards[ $card_number ]['name'] : $tcgp_card->name;
 		if ( ! $card_slug ) {
-			$card_slug = $set_slug . '-' . filter_var( $card_number, FILTER_SANITIZE_NUMBER_INT );
+			$card_slug = $set_slug . '-' . $card_number;
 		}
 
 		foreach ( $tcgp_card->skus as $sku ) {
@@ -445,11 +432,8 @@ class CLICommand extends \WP_CLI_Command {
 
 				wp_set_object_terms( $result, $set_id, 'set' );
 				if ( isset( $ptcg_cards[ $card_number ] ) ) {
-					wp_set_object_terms( $result, $ptcg_cards[ $card_number ]['hash'], 'card_hash' );
 					wp_set_object_terms( $result, $ptcg_cards[ $card_number ]['card_types'], 'card_type' );
 					wp_set_object_terms( $result, $ptcg_cards[ $card_number ]['pkm_types'], 'pokemon_type' );
-				} else {
-					wp_set_object_terms( $result, 'x-no-hash', 'card_hash' );
 				}
 
 				\WP_CLI::success( 'Imported ' . $card_name );

@@ -195,6 +195,13 @@ class ACF extends Service {
 		) );
 	}
 
+	/**
+	 * Add Attacks FieldManager fields. Not using ACF because they charge for this type of field
+	 * and, well, I'm on a budget. For now.
+	 *
+	 * @since 0.1.0
+	 * @author Evan Hildreth <me@eph.me>
+	 */
 	public function add_card_fm_fields() {
 		$fm = new Fieldmanager_Group( array(
 			'name'           => 'attacks',
