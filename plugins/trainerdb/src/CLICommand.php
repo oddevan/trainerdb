@@ -308,14 +308,20 @@ class CLICommand extends \WP_CLI_Command {
 			$card = $card_obj->toArray();
 
 			$pk_api_cache[ $card['number'] ] = [
-				'name'         => $card['name'],
-				'ptcg_id'      => $card['id'],
-				'image_url'    => $card['imageUrlHiRes'],
-				'card_types'   => [],
-				'pkm_types'    => [],
-				'hp'           => $card['hp'],
-				'retreat_cost' => $card['convertedRetreatCost'],
-				'attacks'      => $card['attacks'],
+				'name'            => $card['name'],
+				'ptcg_id'         => $card['id'],
+				'image_url'       => $card['imageUrlHiRes'],
+				'card_types'      => [],
+				'pkm_types'       => [],
+				'hp'              => $card['hp'],
+				'retreat_cost'    => $card['convertedRetreatCost'],
+				'attacks'         => $card['attacks'],
+				'text'            => $card['text'],
+				'weakness_type'   => null,
+				'weakness_mod'    => null,
+				'resistance_type' => null,
+				'resistance_mod'  => null,
+				'evolves_from'    => isset( $card['evolvesFrom'] ) ? $card['evolvesFrom'] : null,
 			];
 
 			// Create the hash.
@@ -338,6 +344,14 @@ class CLICommand extends \WP_CLI_Command {
 				foreach ( $card['types'] as $type ) {
 					$pk_api_cache[ $card['number'] ]['pkm_types'][] = sanitize_title( $type );
 				}
+			}
+			if ( isset( $card['weaknesses'] ) ) {
+				$pk_api_cache[ $card['number'] ]['weakness_type'] = get_term_by( 'slug', sanitize_title( $card['weaknesses'][0]['type'] ), 'pokemon_type' );
+				$pk_api_cache[ $card['number'] ]['weakness_mod']  = $card['weaknesses'][0]['value'];
+			}
+			if ( isset( $card['resistances'] ) ) {
+				$pk_api_cache[ $card['number'] ]['resistance_type'] = get_term_by( 'slug', sanitize_title( $card['resistances'][0]['type'] ), 'pokemon_type' );
+				$pk_api_cache[ $card['number'] ]['resistance_mod']  = $card['resistances'][0]['value'];
 			}
 		}
 
@@ -381,7 +395,9 @@ class CLICommand extends \WP_CLI_Command {
 		}
 
 		$card_number = $card_info['card_number'];
-		$card_name   = isset( $ptcg_cards[ $card_number ] ) ? $ptcg_cards[ $card_number ]['name'] : $tcgp_card->name;
+		$has_ptcg    = isset( $ptcg_cards[ $card_number ] );
+		$is_pokemon  = $has_ptcg && in_array( 'pokemon', $ptcg_cards[ $card_number ]['card_types'], true );
+		$card_name   = $has_ptcg ? $ptcg_cards[ $card_number ]['name'] : $tcgp_card->name;
 		if ( ! $card_slug ) {
 			$card_slug = $set_slug . '-' . filter_var( $card_number, FILTER_SANITIZE_NUMBER_INT );
 		}
@@ -397,12 +413,19 @@ class CLICommand extends \WP_CLI_Command {
 					'post_name'   => $card_slug . ( $is_reverse ? 'r' : '' ),
 					'meta_input'  => [
 						'card_number'         => filter_var( $card_number, FILTER_SANITIZE_NUMBER_INT ),
-						'ptcg_id'             => $ptcg_cards[ $card_number ]['ptcg_id'],
+						'ptcg_id'             => $has_ptcg ? $ptcg_cards[ $card_number ]['ptcg_id'] : '!err',
 						'tcgp_id'             => $sku->skuId,
+						'tcgp_url'            => $tcgp_card->url,
 						'reverse_holographic' => $is_reverse,
-						'image_url'           => $ptcg_cards[ $card_number ]['image_url'],
-						'hp'                  => $ptcg_cards[ $card_number ]['hp'],
-						'retreat_cost'        => $ptcg_cards[ $card_number ]['retreat_cost'],
+						'image_url'           => $has_ptcg ? $ptcg_cards[ $card_number ]['image_url'] : $tcgp_card->imageUrl,
+						'card_text'           => $has_ptcg ? $ptcg_cards[ $card_number ]['text'] : $card_info['text'],
+						'hp'                  => $is_pokemon ? $ptcg_cards[ $card_number ]['hp'] : null,
+						'evolves_from'        => $is_pokemon ? $ptcg_cards[ $card_number ]['evolves_from'] : null,
+						'retreat_cost'        => $is_pokemon ? $ptcg_cards[ $card_number ]['retreat_cost'] : null,
+						'weakness_type'       => $is_pokemon ? $ptcg_cards[ $card_number ]['weakness_type'] : null,
+						'weakness_mod'        => $is_pokemon ? $ptcg_cards[ $card_number ]['weakness_mod'] : null,
+						'resistance_type'     => $is_pokemon ? $ptcg_cards[ $card_number ]['resistance_type'] : null,
+						'resistance_mod'      => $is_pokemon ? $ptcg_cards[ $card_number ]['resistance_mod'] : null,
 					],
 				];
 
