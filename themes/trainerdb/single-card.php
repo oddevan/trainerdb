@@ -26,13 +26,30 @@ get_header(); ?>
 			<header class="entry-header">
 				<?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
 			</header><!-- .entry-header -->
-			<div class="entry-content row">
-				<div class="col-sm-8">
-				<code><?php echo $post->post_name; // phpcs:xss ok. ?></code>
+			<div class="entry-content">
+				<div class="row">
+					<div class="col-sm-8">
+						<dl class="row">
+							<dt class="col-sm-5">TrainerDB Code</dt>
+							<dd class="col-sm-7"><code><?php echo $post->post_name; // phpcs:xss ok. ?></code></dd>
+							<dt class="col-sm-5">Reverse Holographic</dt>
+							<dd class="col-sm-7"><code><?php echo $post->post_name; // phpcs:xss ok. ?></code></dd>
+							<dt class="col-sm-5">HP</dt>
+							<dd class="col-sm-7"><code><?php echo $post->post_name; // phpcs:xss ok. ?></code></dd>
+							<dt class="col-sm-5">Evolves From</dt>
+							<dd class="col-sm-7"><code><?php echo $post->post_name; // phpcs:xss ok. ?></code></dd>
+							<dt class="col-sm-5">Weakness</dt>
+							<dd class="col-sm-7"><code><?php echo $post->post_name; // phpcs:xss ok. ?></code></dd>
+							<dt class="col-sm-5">Resistance</dt>
+							<dd class="col-sm-7"><code><?php echo $post->post_name; // phpcs:xss ok. ?></code></dd>
+							<dt class="col-sm-5">Retreat Cost</dt>
+							<dd class="col-sm-7"><code><?php echo $post->post_name; // phpcs:xss ok. ?></code></dd>
+						</dl>
+					</div>
+					<aside class="col-sm-4">
+						<img src="<?php the_field( 'image_url' ); ?>" alt="Image of card" class="img-responsive">
+					</aside>
 				</div>
-				<aside class="col-sm-4">
-					<img src="<?php the_field( 'image_url' ); ?>" alt="Image of card" class="img-responsive">
-				</aside>
 			</div><!-- .entry-content -->
 
 			<footer class="entry-footer">
