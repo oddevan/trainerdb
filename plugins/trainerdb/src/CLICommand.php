@@ -11,6 +11,7 @@ namespace oddEvan\TrainerDB;
 
 use Pokemon\Pokemon;
 use \WP_CLI;
+use \WP_Query;
 
 /**
  * Class to handle the WP-CLI commands. May refactor logic out to different class eventually.
@@ -313,8 +314,9 @@ class CLICommand extends \WP_CLI_Command {
 				'card_types'      => [],
 				'pkm_types'       => [],
 				'hp'              => $card['hp'],
-				'retreat_cost'    => $card['convertedRetreatCost'],
+				'retreat_cost'    => is_array( $card['retreatCost'] ) ? count( $card['retreatCost'] ) : 0,
 				'attacks'         => $card['attacks'],
+				'ability'         => $card['ability'],
 				'text'            => implode( ' ', $card['text'] ),
 				'weakness_type'   => null,
 				'weakness_mod'    => null,
@@ -391,9 +393,17 @@ class CLICommand extends \WP_CLI_Command {
 
 		foreach ( $tcgp_card->skus as $sku ) {
 			if ( 1 === $sku->languageId && 1 === $sku->conditionId ) {
+				$check_query   = new WP_Query( [
+					'meta_key'   => 'tcgp_id',
+					'meta_value' => $sku->skuId,
+					'post_type'  => 'card',
+					'fields'     => 'ids',
+				] );
+
 				$is_reverse = ( 77 === $sku->printingId );
 
 				$args = [
+					'ID'          => $check_query->post_count > 0 ? $check_query->posts[0] : 0,
 					'post_type'   => 'card',
 					'post_title'  => $card_name,
 					'post_status' => 'publish',

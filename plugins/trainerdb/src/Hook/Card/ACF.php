@@ -203,6 +203,17 @@ class ACF extends Service {
 	 * @author Evan Hildreth <me@eph.me>
 	 */
 	public function add_card_fm_fields() {
+		$fm2 = new Fieldmanager_Group( array(
+			'name'     => 'ability',
+			'limit'    => 1,
+			'label'    => 'Ability',
+			'children' => array(
+				'name' => new Fieldmanager_Textfield( 'Name' ),
+				'text' => new Fieldmanager_Textfield( 'Text' ),
+			),
+		) );
+		$fm2->add_meta_box( 'Ability', 'card' );
+
 		$fm = new Fieldmanager_Group( array(
 			'name'           => 'attacks',
 			'limit'          => 0,

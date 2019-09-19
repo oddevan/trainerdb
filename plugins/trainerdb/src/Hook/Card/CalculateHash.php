@@ -46,11 +46,11 @@ class CalculateHash extends Service {
 			get_post_meta( $post_id, 'resistance_type', true ),
 			get_post_meta( $post_id, 'resistance_mod', true ),
 			get_post_meta( $post_id, 'attacks', false ),
-			get_the_terms( $post_id, 'card_type' ),
-			get_the_terms( $post_id, 'pokemon_type' ),
+			wp_list_pluck( get_the_terms( $post_id, 'pokemon_type' ), 'slug' ),
 		];
 
 		remove_action( 'save_post_card', [ $this, 'calculate_card_hash' ], 50, 1 );
+		update_post_meta( $post_id, '_hash_text', wp_json_encode( $hash_data ) );
 		wp_set_object_terms( $post_id, md5( wp_json_encode( $hash_data ) ), 'card_hash' );
 		add_action( 'save_post_card', [ $this, 'calculate_card_hash' ], 50, 1 );
 	}
