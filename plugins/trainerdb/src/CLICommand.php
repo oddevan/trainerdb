@@ -431,8 +431,16 @@ class CLICommand extends \WP_CLI_Command {
 						$tax   = get_term_by( 'slug', sanitize_title( $value ), 'pokemon_type' );
 						$value = $tax ? $tax->term_id : $value;
 					} );
+					unset( $attack['convertedEnergyCost'] );
 
 					$args['meta_input']['attacks'][] = $attack;
+				}
+
+				if ( isset( $ptcg_cards[ $card_number ]['ability'] ) ) {
+					$args['meta_input']['ability'] = [
+						'text' => $ptcg_cards[ $card_number ]['ability']['text'],
+						'name' => $ptcg_cards[ $card_number ]['ability']['name'],
+					];
 				}
 
 				$result = wp_insert_post( $args, true );
