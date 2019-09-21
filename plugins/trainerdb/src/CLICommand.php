@@ -452,6 +452,8 @@ class CLICommand extends \WP_CLI_Command {
 				if ( isset( $ptcg_cards[ $card_number ] ) ) {
 					wp_set_object_terms( $result, $ptcg_cards[ $card_number ]['card_types'], 'card_type' );
 					wp_set_object_terms( $result, $ptcg_cards[ $card_number ]['pkm_types'], 'pokemon_type' );
+				} else {
+					wp_set_object_terms( $result, 'needs-ptcg', 'process' );
 				}
 
 				\WP_CLI::success( 'Imported ' . $card_name );
@@ -531,7 +533,90 @@ class CLICommand extends \WP_CLI_Command {
 		return $card_info;
 	}
 
-	public function zzz() {
-		WP_CLI::log( print_r( get_post_meta( 33, 'attacks', true ), true ) );
+	public function reload_cards() {
+		$query = new WP_Query( [
+			'post_type' => 'card',
+			'tax_query' => [
+				[
+					'taxonomy' => 'process',
+					'field'    => 'slug',
+					'terms'    => 'reload-ptcg',
+				],
+			],
+		] );
+
+		// While there are posts left to traverse...
+		while ( $query->have_posts() ) {
+			$query->the_post();
+
+			$ptcg_id  = get_post_meta( get_the_ID(), 'ptcg_id', true );
+			$card_obj = Pokemon::Card()->find( $ptcg_id );
+			if ( ! $card_obj ) {
+				WP_CLI::log( 'Could not find ' . get_the_title() . ' with ID ' . $ptcg_id );
+				continue;
+			}
+
+			$card       = $card_obj->toArray();
+			$is_pokemon = ( 'pokemon' === sanitize_title( $card['supertype'] ) );
+
+			$card_types   = [];
+			$card_types[] = sanitize_title( $card['supertype'] );
+			$card_types[] = sanitize_title( $card['subtype'] );
+
+			$pokemon_types = [];
+			if ( isset( $card['types'] ) ) {
+				foreach ( $card['types'] as $type ) {
+					$pokemon_types[] = sanitize_title( $type );
+				}
+			}
+
+			$args = [
+				'ID'         => get_the_ID(),
+				'post_title' => $card['name'],
+				'meta_input' => [
+					'image_url' => $card['imageUrlHiRes'],
+					'card_text' => implode( ' ', $card['text'] ),
+					'hp'        => $is_pokemon ? $card['hp'] : null,
+				],
+			];
+
+			foreach ( $card['attacks'] as $attack ) {
+				array_walk( $attack['cost'], function( &$value, $key ) {
+					$tax   = get_term_by( 'slug', sanitize_title( $value ), 'pokemon_type' );
+					$value = $tax ? $tax->term_id : $value;
+				} );
+				unset( $attack['convertedEnergyCost'] );
+
+				$args['meta_input']['attacks'][] = $attack;
+			}
+
+			if ( isset( $card['ability'] ) ) {
+				$args['meta_input']['ability'] = [
+					'text' => $card['ability']['text'],
+					'name' => $card['ability']['name'],
+				];
+			}
+
+			if ( isset( $card['weaknesses'] ) ) {
+				$args['meta_input']['weakness_type'] = get_term_by( 'slug', sanitize_title( $card['weaknesses'][0]['type'] ), 'pokemon_type' );
+				$args['meta_input']['weakness_mod']  = $card['weaknesses'][0]['value'];
+			}
+			if ( isset( $card['resistances'] ) ) {
+				$args['meta_input']['resistance_type'] = get_term_by( 'slug', sanitize_title( $card['resistances'][0]['type'] ), 'pokemon_type' );
+				$args['meta_input']['resistance_mod']  = $card['resistances'][0]['value'];
+			}
+
+			$result = wp_insert_post( $args, true );
+			if ( is_wp_error( $result ) ) {
+				\WP_CLI::error( $result->get_error_message() );
+			}
+
+			wp_set_object_terms( get_the_ID(), $card_types, 'card_type' );
+			wp_set_object_terms( get_the_ID(), $pokemon_types, 'pokemon_type' );
+
+			wp_remove_object_terms( get_the_ID(), 'reload-ptcg', 'process' );
+
+			\WP_CLI::success( 'Synced ' . get_the_title() );
+		}
 	}
 }
