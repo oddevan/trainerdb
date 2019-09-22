@@ -606,7 +606,7 @@ class CLICommand extends \WP_CLI_Command {
 				$args['meta_input']['resistance_mod']  = $card['resistances'][0]['value'];
 			}
 
-			$result = wp_insert_post( $args, true );
+			$result = wp_update_post( $args, true );
 			if ( is_wp_error( $result ) ) {
 				\WP_CLI::error( $result->get_error_message() );
 			}
