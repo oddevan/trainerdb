@@ -245,20 +245,32 @@ class CLICommand extends \WP_CLI_Command {
 		}
 	}
 
-	public function get_cards() {
-		$set_ids = get_terms( array(
-			'taxonomy'   => 'set',
-			'hide_empty' => false,
-			'fields'     => 'ids',
-			'meta_query' => [
-				'relation' => 'AND',
-				[
-					'key'     => 'tcgp_id',
-					'compare' => '>',
-					'value'   => 0,
+	public function get_cards( $set ) {
+		if ( ! $set ) {
+			WP_CLI::error( 'Please specifiy a set slug to import, or `--all` to import all available.' );
+		}
+
+		$set_ids = [];
+		if ( '--all' === $set[0] ) {
+			$set_ids = get_terms( array(
+				'taxonomy'   => 'set',
+				'hide_empty' => false,
+				'fields'     => 'ids',
+				'meta_query' => [
+					'relation' => 'AND',
+					[
+						'key'     => 'tcgp_id',
+						'compare' => '>',
+						'value'   => 0,
+					],
 				],
-			],
-		) );
+			) );
+		} else {
+			foreach ( $set as $set_slug ) {
+				$tax       = get_term_by( 'slug', sanitize_title( $set_slug ), 'set' );
+				$set_ids[] = $tax ? $tax->term_id : null;
+			}
+		}
 
 		foreach ( $set_ids as $set_id ) {
 			$quantity = 50;
