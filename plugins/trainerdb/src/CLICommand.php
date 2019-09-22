@@ -245,13 +245,13 @@ class CLICommand extends \WP_CLI_Command {
 		}
 	}
 
-	public function get_cards( $set ) {
-		if ( ! $set ) {
+	public function get_cards( $args, $assoc_args ) {
+		if ( ! $args && ! $assoc_args['all'] ) {
 			WP_CLI::error( 'Please specifiy a set slug to import, or `--all` to import all available.' );
 		}
 
 		$set_ids = [];
-		if ( '--all' === $set[0] ) {
+		if ( $assoc_args['all'] ) {
 			$set_ids = get_terms( array(
 				'taxonomy'   => 'set',
 				'hide_empty' => false,
@@ -266,7 +266,7 @@ class CLICommand extends \WP_CLI_Command {
 				],
 			) );
 		} else {
-			foreach ( $set as $set_slug ) {
+			foreach ( $args as $set_slug ) {
 				$tax       = get_term_by( 'slug', sanitize_title( $set_slug ), 'set' );
 				$set_ids[] = $tax ? $tax->term_id : null;
 			}
