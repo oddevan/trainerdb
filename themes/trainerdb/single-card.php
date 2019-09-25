@@ -31,7 +31,9 @@ get_header(); ?>
 					<div class="col-sm-8">
 						<dl class="row">
 							<dt class="col-sm-5">TrainerDB Code</dt>
-							<dd class="col-sm-7"><code><?php echo $post->post_name; // phpcs:xss ok. ?></code></dd>
+							<dd class="col-sm-7"><code><?php echo esc_html( $post->post_name ); ?></code></dd>
+							<dt class="col-sm-5">Card Text</dt>
+							<dd class="col-sm-7"><?php echo esc_html( get_field( 'card_text' ) ); ?></dd>
 							<dt class="col-sm-5">Reverse Holographic</dt>
 							<dd class="col-sm-7"><code><?php echo $post->post_name; // phpcs:xss ok. ?></code></dd>
 							<dt class="col-sm-5">HP</dt>
@@ -47,7 +49,7 @@ get_header(); ?>
 						</dl>
 					</div>
 					<aside class="col-sm-4">
-						<img src="<?php the_field( 'image_url' ); ?>" alt="Image of card" class="img-responsive">
+						<img src="<?php echo esc_url( get_field( 'image_url' ) ); ?>" alt="Image of card" class="img-responsive">
 					</aside>
 				</div>
 			</div><!-- .entry-content -->
