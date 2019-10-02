@@ -17,6 +17,8 @@ get_header(); ?>
 		<?php
 		while ( have_posts() ) :
 			the_post();
+			$term_obj_list = get_the_terms( $post->ID, 'taxonomy' );
+			$rarity_string = join( ', ', wp_list_pluck( $term_obj_list, 'name' ) );
 			?>
 
 			<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
@@ -32,10 +34,11 @@ get_header(); ?>
 						<dl class="row">
 							<dt class="col-sm-5">TrainerDB Code</dt>
 							<dd class="col-sm-7"><code><?php echo esc_html( $post->post_name ); ?></code></dd>
-							<dt class="col-sm-5">Card Text</dt>
-							<dd class="col-sm-7"><?php echo esc_html( get_field( 'card_text' ) ); ?></dd>
-							<dt class="col-sm-5">Reverse Holographic</dt>
-							<dd class="col-sm-7"><code><?php echo $post->post_name; // phpcs:xss ok. ?></code></dd>
+							<dt class="col-sm-5">Rarity</dt>
+							<dd class="col-sm-7">
+								<?php echo esc_html( $rarity_string ); ?>
+								<?php echo get_field( 'reverse_holographic' ) ? esc_html__( ' (Reverse Holographic)', 'trainerdb' ) : ''; ?>
+							</dd>
 							<dt class="col-sm-5">HP</dt>
 							<dd class="col-sm-7"><code><?php echo $post->post_name; // phpcs:xss ok. ?></code></dd>
 							<dt class="col-sm-5">Evolves From</dt>
@@ -47,6 +50,8 @@ get_header(); ?>
 							<dt class="col-sm-5">Retreat Cost</dt>
 							<dd class="col-sm-7"><code><?php echo $post->post_name; // phpcs:xss ok. ?></code></dd>
 						</dl>
+
+						<p><?php echo esc_html( get_field( 'card_text' ) ); ?></p>
 					</div>
 					<aside class="col-sm-4">
 						<img src="<?php echo esc_url( get_field( 'image_url' ) ); ?>" alt="Image of card" class="img-responsive">

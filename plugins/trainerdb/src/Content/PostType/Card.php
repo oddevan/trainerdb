@@ -83,7 +83,7 @@ class Card extends PostType {
 			'menu_icon'           => 'dashicons-share-alt',
 			'capability_type'     => 'post',
 			'show_in_rest'        => true,
-			'taxonomies'          => [ 'set', 'card_hash' ],
+			'taxonomies'          => [ 'set', 'card_hash', 'card_type', 'pokemon_type', 'process', 'rarity' ],
 			'show_in_graphql'     => true,
 			'graphql_single_name' => 'Card',
 			'graphql_plural_name' => 'Cards',
