@@ -363,6 +363,17 @@ class CLICommand extends \WP_CLI_Command {
 		$card_slug = false;
 		$card_info = $this->parse_tcg_card_info( $tcgp_card );
 
+		/*////////
+
+		WP_CLI::log( 'Attacks for ' . $tcgp_card->name );
+		foreach ( $card_info['attacks'] as $atk ) {
+			$this->parse_attack_text( $atk );
+		}
+		echo "\n----------\n";
+		return;
+
+		////////*/
+
 		if ( 0 === strpos( $card_info['card_type'], 'Basic ' ) ) {
 			switch ( $card_info['card_type'] ) {
 				case 'Basic Grass Energy':
@@ -539,6 +550,15 @@ class CLICommand extends \WP_CLI_Command {
 				case 'Attack 4':
 					$card_info['attacks'][] = $edat->value;
 					break;
+				case 'Weakness':
+					$card_info['weakness'] = $edat->value;
+					break;
+				case 'Resistance':
+					$card_info['resistance'] = $edat->value;
+					break;
+				case 'RetreatCost':
+					$card_info['retreat_cost'] = $edat->value;
+					break;
 			}
 		}
 
@@ -630,5 +650,14 @@ class CLICommand extends \WP_CLI_Command {
 
 			\WP_CLI::success( 'Synced ' . get_the_title() );
 		}
+	}
+
+	private function parse_attack_text( $attack_text ) {
+		$output_array = [];
+		preg_match( '/\[([0-9A-Z]+)\+?\]\s((\w+\s)+)(\(([0-9x]+)\+?\))?/', wp_strip_all_tags( $attack_text ), $output_array );
+
+		echo wp_strip_all_tags( $attack_text ) . "\n";
+		print_r( $output_array );
+		echo "\n";
 	}
 }

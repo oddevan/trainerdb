@@ -37,19 +37,19 @@ class CalculateHash extends Service {
 	public function calculate_card_hash( $post_id ) {
 		$weakness_obj   = get_post_meta( $post_id, 'weakness_type', true );
 		$resistance_obj = get_post_meta( $post_id, 'resistance_type', true );
+		$attack_array   = get_post_meta( $post_id, 'attacks', false );
 
 		$hash_data = [
 			'title'           => get_the_title( $post_id ),
 			'card_text'       => get_post_meta( $post_id, 'card_text', true ),
-			'hp'              => get_post_meta( $post_id, 'hp', true ),
-			'evolves_from'    => get_post_meta( $post_id, 'evolves_from', true ),
-			'retreat_cost'    => get_post_meta( $post_id, 'retreat_cost', true ),
-			'weakness_type'   => $weakness_obj ? $weakness_obj->term_id : null,
-			'weakness_mod'    => get_post_meta( $post_id, 'weakness_mod', true ),
-			'resistance_type' => $resistance_obj ? $resistance_obj->term_id : null,
-			'resistance_mod'  => get_post_meta( $post_id, 'resistance_mod', true ),
+//			'hp'              => get_post_meta( $post_id, 'hp', true ),
+//			'retreat_cost'    => get_post_meta( $post_id, 'retreat_cost', true ),
+//			'weakness_type'   => $weakness_obj ? $weakness_obj->term_id : null,
+//			'weakness_mod'    => get_post_meta( $post_id, 'weakness_mod', true ),
+//			'resistance_type' => $resistance_obj ? $resistance_obj->term_id : null,
+//			'resistance_mod'  => get_post_meta( $post_id, 'resistance_mod', true ),
 			'ability'         => get_post_meta( $post_id, 'ability', false ),
-			'attacks'         => get_post_meta( $post_id, 'attacks', false ),
+			'attacks'         => wp_list_pluck( $attack_array, 'name' ),
 			'pokemon_type'    => wp_list_pluck( get_the_terms( $post_id, 'pokemon_type' ), 'slug' ),
 		];
 
