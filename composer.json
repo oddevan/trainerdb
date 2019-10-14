@@ -26,7 +26,9 @@
 		"webdevstudios/oops-wp": "^0.2.0",
 		"pokemon-tcg/pokemon-tcg-sdk-php": "^1.2",
 		"wp-graphql/wp-graphql": "^0.3.5",
-		"wp-graphql/wp-graphiql": "^1.0.0"
+		"wp-graphql/wp-graphiql": "^1.0.0",
+		"wpackagist-plugin/webhook-netlify-deploy": "^1.1",
+		"alleyinteractive/wordpress-fieldmanager": "^1.2"
 	},
 	"autoload": {
 		"psr-4": {
