@@ -13,35 +13,58 @@ namespace oddEvan\TrainerDB\Model;
  *
  * @since 0.1.0
  */
-class Card {
-	abstract public function get_title();
-	abstract public function get_slug();
-	abstract public function get_card_number();
-	abstract public function get_reverse_holo();
-	abstract public function get_card_text();
-	abstract public function get_hp();
-	abstract public function get_evolves_from();
-}
+abstract class Card {
+	abstract public function get_post_id() : int;
+	abstract public function get_card_type() : CardType;
+	abstract public function get_energy_type() : EnergyType;
+	abstract public function get_title() : string;
+	abstract public function get_slug() : string;
+	abstract public function get_card_number() : string;
+	abstract public function get_reverse_holo() : bool;
+	abstract public function get_card_text() : string;
+	abstract public function get_hp() : int;
+	abstract public function get_evolves_from() : string;
+	abstract public function get_retreat_cost() : int;
+	abstract public function get_weakness_type() : EnergyType;
+	abstract public function get_weakness_mod() : string;
+	abstract public function get_resistance_type() : EnergyType;
+	abstract public function get_resistance_mod() : string;
+	abstract public function get_attacks() : array;
+	abstract public function get_ability() : array;
 
-/*
-					'ID'          => $check_query->post_count > 0 ? $check_query->posts[0] : 0,
-					'post_type'   => 'card',
-					'post_title'  => $card_name,
-					'post_status' => 'publish',
-					'post_name'   => $card_slug . ( $is_reverse ? 'r' : '' ),
-					'meta_input'  => [
-						'card_number'         => filter_var( $card_number, FILTER_SANITIZE_NUMBER_INT ),
-						'ptcg_id'             => $has_ptcg ? $ptcg_cards[ $card_number ]['ptcg_id'] : '!err',
-						'tcgp_id'             => $sku->skuId,
-						'tcgp_url'            => $tcgp_card->url,
-						'reverse_holographic' => $is_reverse,
-						'image_url'           => $has_ptcg ? $ptcg_cards[ $card_number ]['image_url'] : $tcgp_card->imageUrl,
-						'card_text'           => $has_ptcg ? $ptcg_cards[ $card_number ]['text'] : $card_info['text'],
-						'hp'                  => $is_pokemon ? $ptcg_cards[ $card_number ]['hp'] : null,
-						'evolves_from'        => $is_pokemon ? $ptcg_cards[ $card_number ]['evolves_from'] : null,
-						'retreat_cost'        => $is_pokemon ? $ptcg_cards[ $card_number ]['retreat_cost'] : null,
-						'weakness_type'       => $is_pokemon ? $ptcg_cards[ $card_number ]['weakness_type'] : null,
-						'weakness_mod'        => $is_pokemon ? $ptcg_cards[ $card_number ]['weakness_mod'] : null,
-						'resistance_type'     => $is_pokemon ? $ptcg_cards[ $card_number ]['resistance_type'] : null,
-						'resistance_mod'      => $is_pokemon ? $ptcg_cards[ $card_number ]['resistance_mod'] : null,
-*/
+	/**
+	 * Get an argument array suitable for wp_insert_post
+	 *
+	 * @author Evan Hildreth <me@eph.me>
+	 * @since 0.1.0
+	 *
+	 * @return array argument array for creating/updating post for this Card
+	 */
+	public function get_post_args() : array {
+		return [
+			'ID'          => $this->get_post_id(),
+			'post_type'   => 'card',
+			'post_title'  => $this->get_title(),
+			'post_status' => 'publish',
+			'post_name'   => $this->get_slug(),
+			'meta_input'  => [
+				'card_number'         => $this->get_card_number,
+				//'ptcg_id'             => $has_ptcg ? $ptcg_cards[ $card_number ]['ptcg_id'] : '!err',
+				//'tcgp_id'             => $sku->skuId,
+				//'tcgp_url'            => $tcgp_card->url,
+				'reverse_holographic' => $this->get_reverse_holo(),
+				//'image_url'           => $has_ptcg ? $ptcg_cards[ $card_number ]['image_url'] : $tcgp_card->imageUrl,
+				'card_text'           => $this->get_card_text(),
+				'hp'                  => $this->get_hp(),
+				'evolves_from'        => $this->get_evolves_from(),
+				'retreat_cost'        => $this->get_retreat_cost(),
+				'weakness_type'       => $this->get_weakness_type(),
+				'weakness_mod'        => $this->get_weakness_mod(),
+				'resistance_type'     => $this->get_resistance_type(),
+				'resistance_mod'      => $this->get_resistance_mod(),
+				'attacks'             => $this->get_attacks(),
+				'ability'             => $this->get_ability(),
+			],
+		];
+	}
+}
