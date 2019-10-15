@@ -40,7 +40,7 @@ class ContentRegistrar extends Service {
 		Taxonomy\Set::class,
 		Taxonomy\CardHash::class,
 		Taxonomy\CardType::class,
-		Taxonomy\PokemonType::class,
+		Taxonomy\EnergyType::class,
 		Taxonomy\Rarity::class,
 		Taxonomy\Process::class,
 	];
