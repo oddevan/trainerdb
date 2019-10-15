@@ -9,7 +9,8 @@
 namespace oddEvan\TrainerDB\Model;
 
 /**
- * Class to model the Card object
+ * Class to model the Card object. We can make cards from multiple sources,
+ * so let's make an abstract class to model the base functionality.
  *
  * @since 0.1.0
  */
