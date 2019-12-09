@@ -1,6 +1,6 @@
 <?php //phpcs:ignore Wordpress.Files.Filename
 /**
- * Class to model the Card object
+ * Class to model a card from TCGPlayer
  *
  * @since 0.1.0
  * @package oddEvan\TrainerDB
@@ -9,12 +9,11 @@
 namespace oddEvan\TrainerDB\Model;
 
 /**
- * Class to model the Card object. We can make cards from multiple sources,
- * so let's make an abstract class to model the base functionality.
+ * Class to extract data from a card from TCGPlayer
  *
  * @since 0.1.0
  */
-abstract class Card {
+class TcgPlayerCard extends Card {
 	/**
 	 * WP Post ID for this Card
 	 *
@@ -23,7 +22,9 @@ abstract class Card {
 	 *
 	 * @return int WordPress Post ID
 	 */
-	abstract public function get_post_id() : int;
+	public function get_post_id() : int {
+		return 0;
+	}
 
 	/**
 	 * CardType for this Card
@@ -33,7 +34,9 @@ abstract class Card {
 	 *
 	 * @return CardType object representing this card's type
 	 */
-	abstract public function get_card_type() : CardType;
+	public function get_card_type() : CardType {
+		return null;
+	}
 
 	/**
 	 * EnergyType for this Card
@@ -43,7 +46,9 @@ abstract class Card {
 	 *
 	 * @return EnergyType object representing this card's Energy type
 	 */
-	abstract public function get_energy_type() : EnergyType;
+	public function get_energy_type() : EnergyType {
+		return null;
+	}
 
 	/**
 	 * Title/Name for this Card
@@ -53,7 +58,9 @@ abstract class Card {
 	 *
 	 * @return string Card title
 	 */
-	abstract public function get_title() : string;
+	public function get_title() : string {
+		return '';
+	}
 
 	/**
 	 * Slug (unique identifier) for this card
@@ -63,7 +70,9 @@ abstract class Card {
 	 *
 	 * @return string Slug for this card
 	 */
-	abstract public function get_slug() : string;
+	public function get_slug() : string {
+		return '';
+	}
 
 	/**
 	 * Set this card belongs to
@@ -73,7 +82,9 @@ abstract class Card {
 	 *
 	 * @return Set Set this card belongs to
 	 */
-	abstract public function get_set() : Set;
+	public function get_set() : Set {
+		return null;
+	}
 
 	/**
 	 * Card number within its set
@@ -84,7 +95,9 @@ abstract class Card {
 	 *
 	 * @return string Card number for this card
 	 */
-	abstract public function get_card_number() : string;
+	public function get_card_number() : string {
+		return '';
+	}
 
 	/**
 	 * Whether this is a reverse holographic (parallel set) printing
@@ -94,7 +107,9 @@ abstract class Card {
 	 *
 	 * @return bool True if card is parallel set
 	 */
-	abstract public function get_reverse_holo() : bool;
+	public function get_reverse_holo() : bool {
+		return false;
+	}
 
 	/**
 	 * Card text (extra rules, etc)
@@ -104,7 +119,9 @@ abstract class Card {
 	 *
 	 * @return string card text
 	 */
-	abstract public function get_card_text() : string;
+	public function get_card_text() : string {
+		return '';
+	}
 
 	/**
 	 * HP for this Pokémon. 0 if not a Pokémon.
@@ -114,7 +131,9 @@ abstract class Card {
 	 *
 	 * @return int HP for this pokemon. 0 if not applicable.
 	 */
-	abstract public function get_hp() : int;
+	public function get_hp() : int {
+		return 0;
+	}
 
 	/**
 	 * Title of card this evolves from. Empty if not a pokemon card or if it is a Basic.
@@ -124,7 +143,9 @@ abstract class Card {
 	 *
 	 * @return string Title of card this evolves from. Empty if not applicable.
 	 */
-	abstract public function get_evolves_from() : string;
+	public function get_evolves_from() : string {
+		return '';
+	}
 
 	/**
 	 * Retreat cost for this pokemon. 0 if not a pokemon.
@@ -134,7 +155,9 @@ abstract class Card {
 	 *
 	 * @return int Retreat cost for this card. 0 if not applicable.
 	 */
-	abstract public function get_retreat_cost() : int;
+	public function get_retreat_cost() : int {
+		return 0;
+	}
 
 	/**
 	 * Energy Type of this pokemon's weakness. Null if no weakness or not a pokemon.
@@ -144,7 +167,9 @@ abstract class Card {
 	 *
 	 * @return EnergyType Type of pokemon's weakness. Null if not applicable.
 	 */
-	abstract public function get_weakness_type() : EnergyType;
+	public function get_weakness_type() : EnergyType {
+		return null;
+	}
 
 	/**
 	 * Weakness modification. Usually 2x. Empty if no weakness or not a pokemon.
@@ -154,7 +179,9 @@ abstract class Card {
 	 *
 	 * @return string Weakness modification. Empty if not applicable.
 	 */
-	abstract public function get_weakness_mod() : string;
+	public function get_weakness_mod() : string {
+		return '';
+	}
 
 	/**
 	 * Energy Type of this pokemon's resistance. Null if no resistance or not a pokemon.
@@ -164,7 +191,9 @@ abstract class Card {
 	 *
 	 * @return EnergyType Type of pokemon's resistance. Null if not applicable.
 	 */
-	abstract public function get_resistance_type() : EnergyType;
+	public function get_resistance_type() : EnergyType {
+		return null;
+	}
 
 	/**
 	 * Resistance modification. Usually -20. Empty if no resistance or not a pokemon.
@@ -174,11 +203,13 @@ abstract class Card {
 	 *
 	 * @return string Resistance modification. Empty if not applicable.
 	 */
-	abstract public function get_resistance_mod() : string;
+	public function get_resistance_mod() : string {
+		return '';
+	}
 
 	/**
 	 * Array of attacks possessed by this pokemon. Empty if not a pokemon.
-	 * Pass 'false' to get as Attack objects (default); 'true' to get as associative array
+	 * Pass 'true' to get as Attack objects (default); 'false' to get as associative array
 	 *
 	 * @since 0.1.0
 	 * @author Evan Hildreth <me@eph.me>
@@ -186,7 +217,9 @@ abstract class Card {
 	 * @param bool $get_post_args false to get Attack objects; fatruelse to get associative array.
 	 * @return array Array of attacks as specified. Empty if not applicable.
 	 */
-	abstract public function get_attacks( $get_post_args = false ) : array;
+	public function get_attacks( $get_post_args = false ) : array {
+		return [];
+	}
 
 	/**
 	 * Ability for this card. Null if not a pokemon or has no ability.
@@ -197,7 +230,9 @@ abstract class Card {
 	 *
 	 * @return Ability Ability object for this card. Null if not applicable.
 	 */
-	abstract public function get_ability() : Ability;
+	public function get_ability() : Ability {
+		return null;
+	}
 
 	/**
 	 * Get an argument array suitable for wp_insert_post
