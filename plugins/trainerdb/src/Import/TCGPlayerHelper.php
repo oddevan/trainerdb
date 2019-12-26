@@ -33,7 +33,23 @@ class TCGPlayerHelper {
 		if ( false === $this->access_token ) {
 			$this->access_token = $this->tcgp_login();
 		}
-  }
+	}
+	
+	public function get_from_tcgp( string $endpoint ) : object {
+		$response = wp_remote_get(
+			'http://api.tcgplayer.com/v1.32.0/' . $endpoint,
+			[
+				'headers' => [
+					'Authorization' => 'Bearer ' . $this->access_token,
+					'Accept'        => 'application/json',
+					'Content-Type'  => 'application/json',
+				],
+			]
+		);
+
+		$api_response = json_decode( $response['body'] );
+		return $api_response->results;
+	}
 	
 	/**
 	 * Use the TCGPlayer app ids to get a temporary access token and store it in the database.
