@@ -242,6 +242,7 @@ class TcgPlayerCard extends Card {
 	 *
 	 * @return array argument array for creating/updating post for this Card
 	 */
+	/*
 	public function get_post_args() : array {
 		$this_ability = $this->get_ability();
 
@@ -267,4 +268,5 @@ class TcgPlayerCard extends Card {
 			],
 		];
 	}
+	*/
 }
