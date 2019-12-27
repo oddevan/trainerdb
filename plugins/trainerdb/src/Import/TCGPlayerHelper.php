@@ -14,13 +14,14 @@ namespace oddEvan\TrainerDB\Import;
  *
  * @since 0.1.0
  */
-class TCGPlayerHelper {
-  /**
+class TcgPlayerHelper {
+	/**
 	 * Store the access token for this session.
 	 *
+	 * @since 0.1.0
 	 * @var string access_token Access Token for the TCGPlayer API.
 	 */
-  private $access_token = false;
+	private $access_token = false;
 
 	/**
 	 * Construct the object
@@ -34,7 +35,17 @@ class TCGPlayerHelper {
 			$this->access_token = $this->tcgp_login();
 		}
 	}
-	
+
+	/**
+	 * Make a request to the TCGPlayer API using the given endpoint. Request will
+	 * be made to `'http://api.tcgplayer.com/v1.32.0/' . $endpoint`.
+	 *
+	 * @author Evan Hildreth
+	 * @since 0.1.0
+	 *
+	 * @param string $endpoint API endpoint to send the GET request.
+	 * @return object Result of the API call.
+	 */
 	public function get_from_tcgp( string $endpoint ) : object {
 		$response = wp_remote_get(
 			'http://api.tcgplayer.com/v1.32.0/' . $endpoint,
@@ -50,13 +61,16 @@ class TCGPlayerHelper {
 		$api_response = json_decode( $response['body'] );
 		return $api_response->results;
 	}
-	
+
 	/**
 	 * Use the TCGPlayer app ids to get a temporary access token and store it in the database.
 	 *
+	 * @author Evan Hildreth
+	 * @since 0.1.0
+	 *
 	 * @return string access token for TCGPlayer
 	 */
-  private function tcgp_login() : string {
+	private function tcgp_login() : string {
 		if ( ! defined( 'TCGP_PUBLIC_ID' ) || ! defined( 'TCGP_PRIVATE_ID' ) ) {
 			if ( defined( 'WP_CLI' ) && WP_CLI ) {
 				\WP_CLI::error( 'Please make sure TCGP_PUBLIC_ID and TCGP_PRIVATE_ID are set in your wp-config' );
