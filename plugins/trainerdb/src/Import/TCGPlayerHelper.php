@@ -37,6 +37,34 @@ class TcgPlayerHelper {
 	}
 
 	/**
+	 * Get all PokemonTCG sets from TCGPlayer
+	 *
+	 * @author Evan Hildreth
+	 * @since 0.1.0
+	 *
+	 * @return object|array results from TCGP
+	 */
+	public function get_sets() {
+		return $this->get_from_tcgp( 'catalog/categories/3/groups?limit=200' );
+	}
+
+	/**
+	 * Get up to $quantity cards from set $set_id starting at card $offset.
+	 *
+	 * @author Evan Hildreth
+	 * @since 0.1.0
+	 *
+	 * @param int $set_id TCGPlayer ID of the set to pull cards from.
+	 * @param int $quantity Maximum number of cards to get. Default 200.
+	 * @param int $offset Starting index of card to get. Default 0.
+	 * @return array results from TCGP
+	 */
+	public function get_cards_from_set( int $set_id, int $quantity = 200, int $offset = 0 ) {
+		return $this->get_from_tcgp( 'catalog/products?categoryId=3&productTypes=Cards&groupId=' .
+			$set_id . '&getExtendedFields=true&includeSkus=true&offset=' . $offset . '&limit=' . $quantity );
+	}
+
+	/**
 	 * Make a request to the TCGPlayer API using the given endpoint. Request will
 	 * be made to `'http://api.tcgplayer.com/v1.32.0/' . $endpoint`.
 	 *
@@ -44,9 +72,9 @@ class TcgPlayerHelper {
 	 * @since 0.1.0
 	 *
 	 * @param string $endpoint API endpoint to send the GET request.
-	 * @return object Result of the API call.
+	 * @return object|array Result of the API call.
 	 */
-	public function get_from_tcgp( string $endpoint ) : object {
+	private function get_from_tcgp( string $endpoint ) {
 		$response = wp_remote_get(
 			'http://api.tcgplayer.com/v1.32.0/' . $endpoint,
 			[

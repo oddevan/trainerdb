@@ -21,11 +21,11 @@ use \WP_Query;
 class CLICommand extends \WP_CLI_Command {
 
 	/**
-	 * Store the access token for this session.
+	 * Helper object for accessing the TCGPlayer API
 	 *
-	 * @var string access_token Access Token for the TCGPlayer API.
+	 * @var Import\TcgPlayerHelper tcgp_helper Object for accessing TCGPlayer API
 	 */
-	private $access_token = false;
+	private $tcgp_helper = false;
 
 	/**
 	 * Construct the object
@@ -34,34 +34,7 @@ class CLICommand extends \WP_CLI_Command {
 	 * @since 0.1.0
 	 */
 	public function __construct() {
-		$this->access_token = get_transient( 'tcgp_access_key' );
-		if ( false === $this->access_token ) {
-			$this->access_token = $this->tcgp_login();
-		}
-	}
-
-	private function tcgp_login() {
-		if ( ! defined( 'TCGP_PUBLIC_ID' ) || ! defined( 'TCGP_PRIVATE_ID' ) ) {
-			\WP_CLI::error( 'Please make sure TCGP_PUBLIC_ID and TCGP_PRIVATE_ID are set in your wp-config' );
-		}
-
-		$http_options = array(
-			'headers' => array(
-				'Content-Type' => 'application/x-www-form-urlencoded',
-			),
-			'body'    => 'grant_type=client_credentials&client_id=' . TCGP_PUBLIC_ID . '&client_secret=' . TCGP_PRIVATE_ID,
-		);
-
-		$response = wp_remote_post( 'https://api.tcgplayer.com/token', $http_options );
-		if ( empty( $response ) || ( 200 !== $response['response']['code'] && 201 !== $response['response']['code'] ) ) {
-			// This function will display an error and stop the script.
-			WP_CLI::error( 'Error connecting to TCGplayer. Response: ' . $response['body'] );
-		}
-
-		$token = json_decode( $response['body'] );
-		set_transient( 'tcgp_access_key', $token->access_token, $token->expires_in );
-
-		return $token->access_token;
+		$this->tcgp_helper = new Import\TcgPlayerHelper();
 	}
 
 	/**
@@ -215,19 +188,7 @@ class CLICommand extends \WP_CLI_Command {
 
 		\WP_CLI::log( 'Querying TCGplayer...' );
 
-		$tcg_response = wp_remote_get(
-			'http://api.tcgplayer.com/v1.32.0/catalog/categories/3/groups?limit=200',
-			[
-				'headers' => [
-					'Authorization' => 'Bearer ' . $this->access_token,
-					'Accept'        => 'application/json',
-					'Content-Type'  => 'application/json',
-				],
-			]
-		);
-
-		$json_response = json_decode( $tcg_response['body'] );
-		$tcg_sets      = $json_response->results;
+		$tcg_sets = $this->tcgp_helper->get_sets();
 
 		echo "\n\n\n";
 
@@ -292,24 +253,11 @@ class CLICommand extends \WP_CLI_Command {
 	}
 
 	private function get_tcgp_cards( $set_tcgpid, $quantity, $offset ) {
-		if ( ! $set_tcgpid || ! \is_numeric( $set_tcgpid ) || $set_tcgpid <= 0 ) {
+		if ( ! $set_tcgpid || ! is_numeric( $set_tcgpid ) || $set_tcgpid <= 0 ) {
 			return [];
 		}
 
-		$response = wp_remote_get(
-			'http://api.tcgplayer.com/v1.32.0/catalog/products?categoryId=3&productTypes=Cards&groupId=' .
-				$set_tcgpid . '&getExtendedFields=true&includeSkus=true&offset=' . $offset . '&limit=' . $quantity,
-			[
-				'headers' => [
-					'Authorization' => 'Bearer ' . $this->access_token,
-					'Accept'        => 'application/json',
-					'Content-Type'  => 'application/json',
-				],
-			]
-		);
-
-		$api_response = json_decode( $response['body'] );
-		return $api_response->results;
+		return $this->tcgp_helper->get_cards_from_set( $set_tcgpid, $quantity, $offset );
 	}
 
 	private function get_ptcg_cards( $set_ptcgid ) {
