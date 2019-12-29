@@ -15,6 +15,91 @@ namespace oddEvan\TrainerDB\Model;
  */
 class TcgPlayerCard extends Card {
 	/**
+	 * Store the full TCGPlayer API response for this Card
+	 *
+	 * @since 0.1.0
+	 * @var object $api_response
+	 */
+	private $api_response;
+
+	/**
+	 * Store the parsed attributes for this Card
+	 *
+	 * @since 0.1.0
+	 * @var object $card_attributes
+	 */
+	private $card_attributes;
+
+	/**
+	 * Construct a Card from a parsed TCGPlayer API response
+	 *
+	 * @since 0.1.0
+	 * @author Evan Hildreth <me@eph.me>
+	 *
+	 * @param object $tcgp_api_response Parsed JSON from TCGPlayer.
+	 */
+	public function __construct( $tcgp_api_response ) {
+		$this->api_response    = $tcgp_api_response;
+		$this->card_attributes = $this->parse_tcg_card_info( $tcgp_api_response );
+	}
+
+	/**
+	 * Parse the Extended Data from TCGPlayer
+	 *
+	 * @since 0.1.0
+	 * @author Evan Hildreth <me@eph.me>
+	 *
+	 * @param object $tcgp_card Parsed JSON from TCGPlayer.
+	 * @return object parsed Extended Data
+	 */
+	private function parse_tcg_card_info( $tcgp_card ) : object {
+		$card_info = [];
+
+		foreach ( $tcgp_card->extendedData as $edat ) { // phpcs:ignore
+			switch ( $edat->name ) {
+				case 'Number':
+					$card_info['card_number'] = $edat->value;
+					if ( strpos( $card_info['card_number'], '/' ) > 0 ) {
+						$card_info['card_number'] = substr( $card_info['card_number'], 0, strpos( $card_info['card_number'], '/' ) );
+					}
+					break;
+				case 'Rarity':
+					$card_info['rarity'] = $edat->value;
+					break;
+				case 'Card Type':
+					$card_info['card_type'] = $edat->value;
+					break;
+				case 'CardText':
+					$card_info['text'] = $edat->value;
+					break;
+				case 'HP':
+					$card_info['hp'] = $edat->value;
+					break;
+				case 'Stage':
+					$card_info['pokemon_stage'] = $edat->value;
+					break;
+				case 'Attack 1':
+				case 'Attack 2':
+				case 'Attack 3':
+				case 'Attack 4':
+					$card_info['attacks'][] = $edat->value;
+					break;
+				case 'Weakness':
+					$card_info['weakness'] = $edat->value;
+					break;
+				case 'Resistance':
+					$card_info['resistance'] = $edat->value;
+					break;
+				case 'RetreatCost':
+					$card_info['retreat_cost'] = $edat->value;
+					break;
+			}
+		}
+
+		return (object) $card_info;
+	}
+
+	/**
 	 * WP Post ID for this Card
 	 *
 	 * @since 0.1.0
@@ -233,40 +318,4 @@ class TcgPlayerCard extends Card {
 	public function get_ability() : Ability {
 		return null;
 	}
-
-	/**
-	 * Get an argument array suitable for wp_insert_post
-	 *
-	 * @author Evan Hildreth <me@eph.me>
-	 * @since 0.1.0
-	 *
-	 * @return array argument array for creating/updating post for this Card
-	 */
-	/*
-	public function get_post_args() : array {
-		$this_ability = $this->get_ability();
-
-		return [
-			'ID'          => $this->get_post_id(),
-			'post_type'   => 'card',
-			'post_title'  => $this->get_title(),
-			'post_status' => 'publish',
-			'post_name'   => $this->get_slug(),
-			'meta_input'  => [
-				'card_number'         => $this->get_card_number(),
-				'reverse_holographic' => $this->get_reverse_holo(),
-				'card_text'           => $this->get_card_text(),
-				'hp'                  => $this->get_hp(),
-				'evolves_from'        => $this->get_evolves_from(),
-				'retreat_cost'        => $this->get_retreat_cost(),
-				'weakness_type'       => $this->get_weakness_type(),
-				'weakness_mod'        => $this->get_weakness_mod(),
-				'resistance_type'     => $this->get_resistance_type(),
-				'resistance_mod'      => $this->get_resistance_mod(),
-				'attacks'             => $this->get_attacks( true ),
-				'ability'             => $this_ability ? $this_ability->get_post_args() : null,
-			],
-		];
-	}
-	*/
 }
