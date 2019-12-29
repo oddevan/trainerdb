@@ -59,9 +59,6 @@ class TcgPlayerCard extends Card {
 			switch ( $edat->name ) {
 				case 'Number':
 					$card_info['card_number'] = $edat->value;
-					if ( strpos( $card_info['card_number'], '/' ) > 0 ) {
-						$card_info['card_number'] = substr( $card_info['card_number'], 0, strpos( $card_info['card_number'], '/' ) );
-					}
 					break;
 				case 'Rarity':
 					$card_info['rarity'] = $edat->value;
@@ -119,8 +116,29 @@ class TcgPlayerCard extends Card {
 	 *
 	 * @return CardType object representing this card's type
 	 */
-	public function get_card_type() : CardType {
-		return null;
+	public function get_card_type() { //: CardType {
+		// Is this a Trainer card? Then use card_type.
+		if ( in_array( $this->card_attributes->card_type, [ 'Item', 'Supporter', 'Stadium' ], true ) ) {
+			return [ 'Trainer', $this->card_attributes->card_type ];
+		}
+
+		// Is it an Energy card? Then say so.
+		// Strict comparison to `false` because `strpos` returning '0' is true for us.
+		if ( false !== strpos( $this->card_attributes->card_type, 'Energy' ) ) {
+			return [ 'Energy', 'Energy' === $this->card_attributes->card_type ? 'Special Energy' : $this->card_attributes->card_type ];
+		}
+
+		// It's a Pokémon card, so use Stage.
+		if ( property_exists( $this->card_attributes, 'stage' ) ) {
+			return [ 'Pokemon', $this->card_attributes->stage ];
+		}
+
+		return [
+			'ERROR',
+			[
+				'card_type' => $this->card_attributes->card_type,
+			],
+		];
 	}
 
 	/**
@@ -131,7 +149,11 @@ class TcgPlayerCard extends Card {
 	 *
 	 * @return EnergyType object representing this card's Energy type
 	 */
-	public function get_energy_type() : EnergyType {
+	public function get_energy_type() { //: EnergyType {
+		if ( ! in_array( $this->card_attributes->card_type, [ 'Item', 'Supporter', 'Stadium', 'Energy' ], true ) ) {
+			return $this->card_attributes->card_type;
+		}
+
 		return null;
 	}
 
@@ -144,7 +166,7 @@ class TcgPlayerCard extends Card {
 	 * @return string Card title
 	 */
 	public function get_title() : string {
-		return '';
+		return $this->api_response->name;
 	}
 
 	/**
@@ -167,8 +189,8 @@ class TcgPlayerCard extends Card {
 	 *
 	 * @return Set Set this card belongs to
 	 */
-	public function get_set() : Set {
-		return null;
+	public function get_set() { //: Set {
+		return $this->api_response->groupId;
 	}
 
 	/**
@@ -181,7 +203,11 @@ class TcgPlayerCard extends Card {
 	 * @return string Card number for this card
 	 */
 	public function get_card_number() : string {
-		return '';
+		$card_number = $this->card_attributes->card_number;
+		if ( strpos( $card_number, '/' ) > 0 ) {
+			$card_number = substr( $card_number, 0, strpos( $card_number, '/' ) );
+		}
+		return $card_number;
 	}
 
 	/**
@@ -205,7 +231,7 @@ class TcgPlayerCard extends Card {
 	 * @return string card text
 	 */
 	public function get_card_text() : string {
-		return '';
+		return return $this->card_attributes->text;
 	}
 
 	/**
@@ -217,6 +243,9 @@ class TcgPlayerCard extends Card {
 	 * @return int HP for this pokemon. 0 if not applicable.
 	 */
 	public function get_hp() : int {
+		if ( property_exists( $this->card_attributes, 'hp' ) ) {
+			return $this->card_attributes->hp;
+		}
 		return 0;
 	}
 
@@ -229,6 +258,9 @@ class TcgPlayerCard extends Card {
 	 * @return string Title of card this evolves from. Empty if not applicable.
 	 */
 	public function get_evolves_from() : string {
+		if ( property_exists( $this->card_attributes, 'stage' ) && 'Basic' !== $this->card_attributes->stage ) {
+			return 'TODO find previous';
+		}
 		return '';
 	}
 
@@ -241,6 +273,9 @@ class TcgPlayerCard extends Card {
 	 * @return int Retreat cost for this card. 0 if not applicable.
 	 */
 	public function get_retreat_cost() : int {
+		if ( property_exists( $this->card_attributes, 'retreat_cost' ) ) {
+			return $this->card_attributes->retreat_cost;
+		}
 		return 0;
 	}
 
@@ -252,7 +287,7 @@ class TcgPlayerCard extends Card {
 	 *
 	 * @return EnergyType Type of pokemon's weakness. Null if not applicable.
 	 */
-	public function get_weakness_type() : EnergyType {
+	public function get_weakness_type() { //} : EnergyType {
 		return null;
 	}
 
@@ -265,6 +300,9 @@ class TcgPlayerCard extends Card {
 	 * @return string Weakness modification. Empty if not applicable.
 	 */
 	public function get_weakness_mod() : string {
+		if ( property_exists( $this->card_attributes, 'weakness' ) ) {
+			return $this->card_attributes->weakness;
+		}
 		return '';
 	}
 
@@ -276,7 +314,7 @@ class TcgPlayerCard extends Card {
 	 *
 	 * @return EnergyType Type of pokemon's resistance. Null if not applicable.
 	 */
-	public function get_resistance_type() : EnergyType {
+	public function get_resistance_type() {//}: EnergyType {
 		return null;
 	}
 
@@ -289,6 +327,9 @@ class TcgPlayerCard extends Card {
 	 * @return string Resistance modification. Empty if not applicable.
 	 */
 	public function get_resistance_mod() : string {
+		if ( property_exists( $this->card_attributes, 'resistance' ) ) {
+			return $this->card_attributes->resistance;
+		}
 		return '';
 	}
 
@@ -315,7 +356,7 @@ class TcgPlayerCard extends Card {
 	 *
 	 * @return Ability Ability object for this card. Null if not applicable.
 	 */
-	public function get_ability() : Ability {
+	public function get_ability() {//} : Ability {
 		return null;
 	}
 }
