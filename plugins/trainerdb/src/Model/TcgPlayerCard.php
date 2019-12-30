@@ -231,7 +231,7 @@ class TcgPlayerCard extends Card {
 	 * @return string card text
 	 */
 	public function get_card_text() : string {
-		return return $this->card_attributes->text;
+		return $this->card_attributes->text;
 	}
 
 	/**
@@ -358,5 +358,27 @@ class TcgPlayerCard extends Card {
 	 */
 	public function get_ability() {//} : Ability {
 		return null;
+	}
+
+	public function debug_dump() {
+		return [
+			'Set'                 => $this->get_set(),
+			'post_title'          => $this->get_title(),
+			'post_name'           => $this->get_slug(),
+			'card_number'         => $this->get_card_number(),
+			'card_type'           => $this->get_card_type(),
+			'energy_type'         => $this->get_energy_type(),
+			'reverse_holographic' => $this->get_reverse_holo(),
+			'card_text'           => $this->get_card_text(),
+			'hp'                  => $this->get_hp(),
+			'evolves_from'        => $this->get_evolves_from(),
+			'retreat_cost'        => $this->get_retreat_cost(),
+			'weakness_type'       => $this->get_weakness_type(),
+			'weakness_mod'        => $this->get_weakness_mod(),
+			'resistance_type'     => $this->get_resistance_type(),
+			'resistance_mod'      => $this->get_resistance_mod(),
+			'attacks'             => $this->get_attacks( true ),
+			'ability'             => $this->get_ability(),
+		];
 	}
 }
