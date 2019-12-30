@@ -38,6 +38,22 @@ class CLICommand extends \WP_CLI_Command {
 	}
 
 	/**
+	 * Run whatever I'm testing now.
+	 *
+	 * @author Evan Hildreth
+	 * @since 0.1.0
+	 */
+	public function test() {
+		WP_CLI::log( 'Querying TCGPlayer...' );
+		$tcgp_cards = $this->tcgp_helper->get_cards_from_set( 2377, 1, 0 );
+
+		WP_CLI::log( 'Creating object...' );
+		$card = new Model\TcgPlayerCard( $tcgp_cards[0] );
+
+		WP_CLI::success( print_r( $card->get_post_args(), true ) );
+	}
+
+	/**
 	 * Import all sets from PTCG; ignoring TCGplayer for this
 	 *
 	 * @author Evan Hildreth
