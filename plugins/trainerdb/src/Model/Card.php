@@ -33,7 +33,7 @@ abstract class Card {
 	 *
 	 * @return CardType object representing this card's type
 	 */
-	abstract public function get_card_type() : CardType;
+	abstract public function get_card_type();// : CardType;
 
 	/**
 	 * EnergyType for this Card
@@ -43,7 +43,7 @@ abstract class Card {
 	 *
 	 * @return EnergyType object representing this card's Energy type
 	 */
-	abstract public function get_energy_type() : EnergyType;
+	abstract public function get_energy_type();// : EnergyType;
 
 	/**
 	 * Title/Name for this Card
@@ -73,7 +73,7 @@ abstract class Card {
 	 *
 	 * @return Set Set this card belongs to
 	 */
-	abstract public function get_set() : Set;
+	abstract public function get_set();// : Set;
 
 	/**
 	 * Card number within its set
@@ -144,7 +144,7 @@ abstract class Card {
 	 *
 	 * @return EnergyType Type of pokemon's weakness. Null if not applicable.
 	 */
-	abstract public function get_weakness_type() : EnergyType;
+	abstract public function get_weakness_type();// : EnergyType;
 
 	/**
 	 * Weakness modification. Usually 2x. Empty if no weakness or not a pokemon.
@@ -164,7 +164,7 @@ abstract class Card {
 	 *
 	 * @return EnergyType Type of pokemon's resistance. Null if not applicable.
 	 */
-	abstract public function get_resistance_type() : EnergyType;
+	abstract public function get_resistance_type();// : EnergyType;
 
 	/**
 	 * Resistance modification. Usually -20. Empty if no resistance or not a pokemon.
@@ -197,7 +197,7 @@ abstract class Card {
 	 *
 	 * @return Ability Ability object for this card. Null if not applicable.
 	 */
-	abstract public function get_ability() : Ability;
+	abstract public function get_ability();// : Ability;
 
 	/**
 	 * Get an argument array suitable for wp_insert_post
