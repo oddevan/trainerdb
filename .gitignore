@@ -8,3 +8,4 @@
 !/themes/trainerdb/
 /uploads/*
 .DS_Store
+debug.log
