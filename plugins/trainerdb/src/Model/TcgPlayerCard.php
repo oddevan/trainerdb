@@ -129,16 +129,7 @@ class TcgPlayerCard extends Card {
 		}
 
 		// It's a Pokémon card, so use Stage.
-		if ( property_exists( $this->card_attributes, 'stage' ) ) {
-			return [ 'Pokemon', $this->card_attributes->stage ];
-		}
-
-		return [
-			'ERROR',
-			[
-				'card_type' => $this->card_attributes->card_type,
-			],
-		];
+		return [ 'Pokemon', property_exists( $this->card_attributes, 'stage' ) ? $this->card_attributes->stage : 'Basic' ];
 	}
 
 	/**
@@ -207,7 +198,7 @@ class TcgPlayerCard extends Card {
 		if ( strpos( $card_number, '/' ) > 0 ) {
 			$card_number = substr( $card_number, 0, strpos( $card_number, '/' ) );
 		}
-		return $card_number;
+		return is_null( $card_number ) ? 0 : $card_number;
 	}
 
 	/**
@@ -231,7 +222,7 @@ class TcgPlayerCard extends Card {
 	 * @return string card text
 	 */
 	public function get_card_text() : string {
-		return $this->card_attributes->text;
+		return is_null( $this->card_attributes->text ) ? '' : $this->card_attributes->text;
 	}
 
 	/**

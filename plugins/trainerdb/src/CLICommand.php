@@ -50,7 +50,27 @@ class CLICommand extends \WP_CLI_Command {
 		WP_CLI::log( 'Creating object...' );
 		$card = new Model\TcgPlayerCard( $tcgp_cards[0] );
 
-		WP_CLI::success( print_r( $card->get_post_args(), true ) );
+		WP_CLI::log( print_r( $card->debug_dump(), true ) );
+
+		//////
+
+		WP_CLI::log( 'Querying TCGPlayer...' );
+		$tcgp_cards = $this->tcgp_helper->get_cards_from_set( 2377, 1, 152 );
+
+		WP_CLI::log( 'Creating object...' );
+		$card = new Model\TcgPlayerCard( $tcgp_cards[0] );
+
+		WP_CLI::log( print_r( $card->debug_dump(), true ) );
+
+		//////
+
+		WP_CLI::log( 'Querying TCGPlayer...' );
+		$tcgp_cards = $this->tcgp_helper->get_cards_from_set( 2377, 1, 200 );
+
+		WP_CLI::log( 'Creating object...' );
+		$card = new Model\TcgPlayerCard( $tcgp_cards[0] );
+
+		WP_CLI::log( print_r( $card->debug_dump(), true ) );
 	}
 
 	/**
