@@ -355,7 +355,19 @@ class TcgPlayerCard extends Card {
 	 * @return array Array of attacks as specified. Empty if not applicable.
 	 */
 	public function get_attacks( $get_post_args = false ) : array {
-		return $this->card_attributes->attacks ?? [];
+		if ( ! $this->card_attributes->attacks ) {
+			return [];
+		}
+
+		if ( $get_post_args ) {
+			$args = [];
+			foreach ( $this->card_attributes->attacks as $attack ) {
+				$args[] = $attack->get_post_args();
+			}
+			return $args;
+		}
+
+		return $this->card_attributes->attacks;
 	}
 
 	/**
