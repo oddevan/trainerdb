@@ -79,7 +79,7 @@ class TcgPlayerCard extends Card {
 				case 'Attack 2':
 				case 'Attack 3':
 				case 'Attack 4':
-					$card_info['attacks'][] = $edat->value;
+					$card_info['attacks'][] = new Attack( $edat->value, $this->helper );
 					break;
 				case 'Weakness':
 					$card_info['weakness'] = $edat->value;
