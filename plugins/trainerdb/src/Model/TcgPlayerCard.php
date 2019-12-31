@@ -97,6 +97,26 @@ class TcgPlayerCard extends Card {
 	}
 
 	/**
+	 * Remove extra info from TCGP's card title (descriptors like "Full Art" or extra numbers)
+	 *
+	 * @since 0.1.0
+	 * @author Evan Hildreth <me@eph.me>
+	 *
+	 * @param string $raw_title Raw title from TCGPlayer
+	 * @return string Title of the card
+	 */
+	private function normalize_title( string $raw_title ) : string {
+		$clean_title = $raw_title;
+		$delimiters  = [ '(', '-' ];
+		foreach ( $delimiters as $delimiter ) {
+			if ( strpos( $clean_title, $delimiter ) > 0 ) {
+				$clean_title = substr( $clean_title, 0, strpos( $clean_title, $delimiter ) );
+			}
+		}
+		return $clean_title;
+	}
+
+	/**
 	 * WP Post ID for this Card
 	 *
 	 * @since 0.1.0
@@ -157,7 +177,7 @@ class TcgPlayerCard extends Card {
 	 * @return string Card title
 	 */
 	public function get_title() : string {
-		return $this->api_response->name;
+		return $this->normalize_title( $this->api_response->name );
 	}
 
 	/**
@@ -331,11 +351,11 @@ class TcgPlayerCard extends Card {
 	 * @since 0.1.0
 	 * @author Evan Hildreth <me@eph.me>
 	 *
-	 * @param bool $get_post_args false to get Attack objects; fatruelse to get associative array.
+	 * @param bool $get_post_args false to get Attack objects; true to get associative array.
 	 * @return array Array of attacks as specified. Empty if not applicable.
 	 */
 	public function get_attacks( $get_post_args = false ) : array {
-		return [];
+		return $this->card_attributes->attacks ?? [];
 	}
 
 	/**
