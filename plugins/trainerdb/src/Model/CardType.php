@@ -16,21 +16,4 @@ use \WP_Term;
  * @since 0.1.0
  */
 class CardType {
-
-	/**
-	 * Store the WP_Term object this CardType represents.
-	 *
-	 * @since 0.1.0
-	 * @var WP_Term $term the WP_Term object this object represents.
-	 */
-	private $term;
-
-	public function __construct( string $term_slug ) {
-		$wp_term = get_term_by( 'slug', $term_slug, 'card_type' );
-		if ( ! $wp_term ) {
-			// TODO create taxonomy.
-		}
-
-		$this->term = $wp_term;
-	}
 }
