@@ -49,6 +49,21 @@ class TcgPlayerHelper {
 	}
 
 	/**
+	 * Get details for a particular set
+	 *
+	 * @author Evan Hildreth
+	 * @since 0.1.0
+	 *
+	 * @param int $set_id API ID number of the set (collection).
+	 * @return object Set info.
+	 */
+	public function get_set_info( int $set_id ) {
+		// TODO find actual endpoint.
+		wp_die( 'TODO find actual set info endpoint' );
+		return $this->get_from_tcgp( 'catalog/categories/3/' );
+	}
+
+	/**
 	 * Get up to $quantity cards from set $set_id starting at card $offset.
 	 *
 	 * @author Evan Hildreth

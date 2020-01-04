@@ -9,6 +9,7 @@
 namespace oddEvan\TrainerDB\Model;
 
 use \WP_Term;
+use oddEvan\TrainerDB\Import\TcgPlayerHelper;
 
 /**
  * Class to model the Set object
@@ -50,9 +51,10 @@ class Set {
 	 * @since 0.1.0
 	 *
 	 * @param int $tcgp_id TCGPlayer API ID (collection id) of the set.
+	 * @param TcgPlayerH
 	 * @return Set new Set object
 	 */
-	public static function create_from_tcg_player_id( $tcgp_id ) : Set {
+	public static function create_from_tcg_player_id( $tcgp_id, $helper = null ) : Set {
 		$term_query = new WP_Term_Query( [
 			'taxonomy'   => [ 'set' ],
 			'meta_key'   => 'tcgp_id',
@@ -64,7 +66,8 @@ class Set {
 				return new Set( $set );
 			}
 		} else {
-			// TODO get name and slug from tcgp.
+			$tcgp_set = $helper->get_set_info( $tcgp_id );
+
 			return new Set( self::create_new_term( 'slug', 'name' ) );
 		}
 	}
