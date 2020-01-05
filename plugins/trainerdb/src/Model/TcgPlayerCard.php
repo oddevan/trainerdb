@@ -31,6 +31,14 @@ class TcgPlayerCard extends Card {
 	private $card_attributes;
 
 	/**
+	 * Store whether this is the normal or reverse printing.
+	 *
+	 * @since 0.1.0
+	 * @var bool $is_reverse
+	 */
+	private $is_reverse;
+
+	/**
 	 * Construct a Card from a parsed TCGPlayer API response
 	 *
 	 * @since 0.1.0
@@ -114,6 +122,23 @@ class TcgPlayerCard extends Card {
 			}
 		}
 		return $clean_title;
+	}
+
+	/**
+	 * Indicate if this TCGP card has a parallel set (reverse holo) printing
+	 *
+	 * @since 0.1.0
+	 * @author Evan Hildreth <me@eph.me>
+	 *
+	 * @return bool true if card has a parallel set printing
+	 */
+	public function has_parallel_printing() : bool {
+		//TODO: iterate through $this->api_response->skus and look for printingId type 77
+		return false;
+	}
+
+	public function set_parallel_printing( bool $is_reverse ) {
+		$this->is_reverse = is_reverse;
 	}
 
 	/**
