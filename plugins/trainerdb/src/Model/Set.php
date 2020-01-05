@@ -50,8 +50,8 @@ class Set {
 	 * @author Evan Hildreth <me@eph.me>
 	 * @since 0.1.0
 	 *
-	 * @param int $tcgp_id TCGPlayer API ID (collection id) of the set.
-	 * @param TcgPlayerH
+	 * @param int             $tcgp_id TCGPlayer API ID (collection id) of the set.
+	 * @param TcgPlayerHelper $helper Initialized TCGPlayerHelper to make the API call.
 	 * @return Set new Set object
 	 */
 	public static function create_from_tcg_player_id( $tcgp_id, $helper = null ) : Set {
