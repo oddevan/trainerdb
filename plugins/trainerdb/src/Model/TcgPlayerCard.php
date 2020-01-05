@@ -102,7 +102,7 @@ class TcgPlayerCard extends Card {
 	 * @since 0.1.0
 	 * @author Evan Hildreth <me@eph.me>
 	 *
-	 * @param string $raw_title Raw title from TCGPlayer
+	 * @param string $raw_title Raw title from TCGPlayer.
 	 * @return string Title of the card
 	 */
 	private function normalize_title( string $raw_title ) : string {
