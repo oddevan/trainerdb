@@ -68,7 +68,10 @@ class Set {
 		} else {
 			$tcgp_set = $helper->get_set_info( $tcgp_id );
 
-			return new Set( self::create_new_term( 'slug', 'name' ) );
+			$new_term = self::create_new_term( $tcgp_set->abbreviation, $tcgp_set->name );
+			update_term_meta( $new_term->id, 'tcgp_id', $tcgp_id );
+
+			return new Set( $new_term );
 		}
 	}
 

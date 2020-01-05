@@ -58,9 +58,11 @@ class TcgPlayerHelper {
 	 * @return object Set info.
 	 */
 	public function get_set_info( int $set_id ) {
-		// TODO find actual endpoint.
-		wp_die( 'TODO find actual set info endpoint' );
-		return $this->get_from_tcgp( 'catalog/categories/3/' );
+		$info = $this->get_from_tcgp( 'catalog/groups/' . $set_id );
+		if ( is_array( $info ) ) {
+			return $info[0];
+		}
+		return null;
 	}
 
 	/**
