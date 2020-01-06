@@ -145,7 +145,7 @@ class TcgPlayerCard extends Card {
 	 * @since 0.1.0
 	 * @author Evan Hildreth <me@eph.me>
 	 *
-	 * @param bool $is_reverse true if card has a parallel set printing
+	 * @param bool $is_reverse true if card has a parallel set printing.
 	 */
 	public function set_parallel_printing( bool $is_reverse ) {
 		$this->is_reverse = is_reverse;
@@ -418,6 +418,28 @@ class TcgPlayerCard extends Card {
 		return null;
 	}
 
+	/**
+	 * Get an argument array suitable for wp_insert_post
+	 *
+	 * @author Evan Hildreth <me@eph.me>
+	 * @since 0.1.0
+	 *
+	 * @return array argument array for creating/updating post for this Card
+	 */
+	public function get_post_args() : array {
+		$args = super::get_post_args();
+		unset( $args['id'] );
+		return $args;
+	}
+
+	/**
+	 * Get info for debugging
+	 *
+	 * @author Evan Hildreth <me@eph.me>
+	 * @since 0.1.0
+	 *
+	 * @return array associative array for print_r
+	 */
 	public function debug_dump() {
 		return [
 			'Set'                 => $this->get_set(),
