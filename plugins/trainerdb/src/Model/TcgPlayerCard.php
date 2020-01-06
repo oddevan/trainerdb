@@ -235,8 +235,8 @@ class TcgPlayerCard extends Card {
 	 *
 	 * @return Set Set this card belongs to
 	 */
-	public function get_set() { //: Set {
-		return $this->api_response->groupId;
+	public function get_set() : Set {
+		return Set::create_from_tcg_player_id( $this->api_response->groupId, null );
 	}
 
 	/**
