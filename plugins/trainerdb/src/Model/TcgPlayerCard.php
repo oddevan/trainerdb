@@ -133,10 +133,20 @@ class TcgPlayerCard extends Card {
 	 * @return bool true if card has a parallel set printing
 	 */
 	public function has_parallel_printing() : bool {
-		//TODO: iterate through $this->api_response->skus and look for printingId type 77
+		$printings = array_filter( $this->api_response->skus, function( $value ) {
+			return 1 === $value->languageId && 1 === $value->conditionId; //phpcs:ignore
+		});
 		return false;
 	}
 
+	/**
+	 * Set whether this is the normal or parallel set printing
+	 *
+	 * @since 0.1.0
+	 * @author Evan Hildreth <me@eph.me>
+	 *
+	 * @param bool $is_reverse true if card has a parallel set printing
+	 */
 	public function set_parallel_printing( bool $is_reverse ) {
 		$this->is_reverse = is_reverse;
 	}
@@ -255,7 +265,7 @@ class TcgPlayerCard extends Card {
 	 * @return bool True if card is parallel set
 	 */
 	public function get_reverse_holo() : bool {
-		return false;
+		return $this->is_reverse && $this->has_parallel_printing();
 	}
 
 	/**
