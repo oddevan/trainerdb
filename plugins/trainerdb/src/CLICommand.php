@@ -12,6 +12,7 @@ namespace oddEvan\TrainerDB;
 use Pokemon\Pokemon;
 use \WP_CLI;
 use \WP_Query;
+use oddEvan\TrainerDB\Model\TcgPlayerCard;
 
 /**
  * Class to handle the WP-CLI commands. May refactor logic out to different class eventually.
@@ -54,8 +55,6 @@ class CLICommand extends \WP_CLI_Command {
 			WP_CLI::log( print_r( $card->debug_dump(), true ) );
 		}
 
-		//////
-
 		WP_CLI::log( 'Querying TCGPlayer...' );
 		$tcgp_cards = $this->tcgp_helper->get_cards_from_set( 2377, 1, 152 );
 
@@ -64,8 +63,6 @@ class CLICommand extends \WP_CLI_Command {
 
 		WP_CLI::log( print_r( $card->debug_dump(), true ) );
 
-		//////
-
 		WP_CLI::log( 'Querying TCGPlayer...' );
 		$tcgp_cards = $this->tcgp_helper->get_cards_from_set( 2377, 1, 200 );
 
@@ -73,5 +70,38 @@ class CLICommand extends \WP_CLI_Command {
 		$card = new Model\TcgPlayerCard( $tcgp_cards[0] );
 
 		WP_CLI::log( print_r( $card->debug_dump(), true ) );
+	}
+
+	/** Load cards into the database */
+	public function load_cards() {
+		$quantity = 100;
+		$offset   = 0;
+		$tcgp_set = 2534;
+		$cards    = $this->tcgp_helper->get_cards_from_set( $tcgp_set, $quantity, $offset );
+
+		while ( ! empty( $cards ) ) {
+			foreach ( $cards as $card ) {
+				$new_card = new TcgPlayerCard( $card );
+
+				$this->import_single_card( $new_card );
+				WP_CLI::success( 'Imported ' . $card->name );
+
+				if ( $new_card->has_parallel_printing() ) {
+					$new_card->set_parallel_printing( true );
+					$this->import_single_card( $new_card );
+					WP_CLI::success( 'Imported ' . $card->name . ' (Reverse Holo)' );
+				}
+			}
+
+			$offset += $quantity;
+			$cards   = $this->tcgp_helper->get_cards_from_set( $tcgp_set, $quantity, $offset );
+		}
+	}
+
+	private function import_single_card( Model\Card $card ) {
+		$result = wp_insert_post( $card->get_post_args(), true );
+		if ( is_wp_error( $result ) ) {
+			\WP_CLI::error( $result->get_error_message() );
+		}
 	}
 }

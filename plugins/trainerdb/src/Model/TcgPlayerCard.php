@@ -36,7 +36,7 @@ class TcgPlayerCard extends Card {
 	 * @since 0.1.0
 	 * @var bool $is_reverse
 	 */
-	private $is_reverse;
+	private $is_reverse = false;
 
 	/**
 	 * Construct a Card from a parsed TCGPlayer API response
@@ -87,7 +87,7 @@ class TcgPlayerCard extends Card {
 				case 'Attack 2':
 				case 'Attack 3':
 				case 'Attack 4':
-					$card_info['attacks'][] = new Attack( $edat->value, $this->helper );
+					$card_info['attacks'][] = new Attack( $edat->value );
 					break;
 				case 'Weakness':
 					$card_info['weakness'] = $edat->value;
@@ -136,6 +136,11 @@ class TcgPlayerCard extends Card {
 		$printings = array_filter( $this->api_response->skus, function( $value ) {
 			return 1 === $value->languageId && 1 === $value->conditionId; //phpcs:ignore
 		});
+		foreach ( $printings as $sku ) {
+			if ( 77 === $sku->printingId ) { //phpcs:ignore
+				return true;
+			}
+		}
 		return false;
 	}
 
@@ -235,7 +240,7 @@ class TcgPlayerCard extends Card {
 	 *
 	 * @return Set Set this card belongs to
 	 */
-	public function get_set() : Set {
+	public function get_set() {
 		return Set::create_from_tcg_player_id( $this->api_response->groupId, null );
 	}
 
@@ -427,7 +432,7 @@ class TcgPlayerCard extends Card {
 	 * @return array argument array for creating/updating post for this Card
 	 */
 	public function get_post_args() : array {
-		$args = super::get_post_args();
+		$args = parent::get_post_args();
 		unset( $args['id'] );
 		return $args;
 	}
@@ -448,7 +453,7 @@ class TcgPlayerCard extends Card {
 			'card_number'         => $this->get_card_number(),
 			'card_type'           => $this->get_card_type(),
 			'energy_type'         => $this->get_energy_type(),
-			'reverse_holographic' => $this->get_reverse_holo(),
+			'reverse_holographic' => $this->has_parallel_printing(),
 			'card_text'           => $this->get_card_text(),
 			'hp'                  => $this->get_hp(),
 			'evolves_from'        => $this->get_evolves_from(),
@@ -459,6 +464,9 @@ class TcgPlayerCard extends Card {
 			'resistance_mod'      => $this->get_resistance_mod(),
 			'attacks'             => $this->get_attacks( true ),
 			'ability'             => $this->get_ability(),
+			'printings'           => array_filter( $this->api_response->skus, function( $value ) {
+				return 1 === $value->languageId && 1 === $value->conditionId; //phpcs:ignore
+			}),
 		];
 	}
 }

@@ -36,7 +36,7 @@ class Set {
 	 */
 	public function __construct( WP_Term $term ) {
 		if ( 'set' !== $term->taxonomy ) {
-			throw new Exception();
+			throw new \Exception();
 		}
 
 		$this->term = $term;
@@ -54,8 +54,8 @@ class Set {
 	 * @param TcgPlayerHelper $helper Initialized TCGPlayerHelper to make the API call.
 	 * @return Set new Set object
 	 */
-	public static function create_from_tcg_player_id( $tcgp_id, $helper = null ) : Set {
-		$term_query = new WP_Term_Query( [
+	public static function create_from_tcg_player_id( $tcgp_id, $helper = null ) {
+		$term_query = new \WP_Term_Query( [
 			'taxonomy'   => [ 'set' ],
 			'meta_key'   => 'tcgp_id',
 			'meta_value' => $tcgp_id,
