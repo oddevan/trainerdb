@@ -29,6 +29,7 @@ class HookRegistrar extends Service {
 		Card\GraphQLMeta::class,
 		Card\CalculateHash::class,
 		Set\ACF::class,
+		Set\AdminColumns::class,
 	];
 
 	/**
