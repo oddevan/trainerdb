@@ -229,7 +229,7 @@ class TcgPlayerCard extends Card {
 	 * @return string Slug for this card
 	 */
 	public function get_slug() : string {
-		return '';
+		return 'CEC' . $this->get_card_number() . ( $this->get_reverse_holo() ? 'r' : '' );
 	}
 
 	/**
