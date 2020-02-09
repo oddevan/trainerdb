@@ -50,7 +50,9 @@ class CLICommand extends \WP_CLI_Command {
 
 		foreach ( $tcgp_cards as $tcgp_card ) {
 			WP_CLI::log( 'Creating object...' );
-			$card = new Model\TcgPlayerCard( $tcgp_card );
+			$card = new Model\TcgPlayerCard( $tcgp_card, $this->tcgp_helper );
+			$set = $card->get_set();
+			WP_CLI::log( print_r( $set, true ) );
 
 			WP_CLI::log( print_r( $card->debug_dump(), true ) );
 		}
@@ -59,7 +61,7 @@ class CLICommand extends \WP_CLI_Command {
 		$tcgp_cards = $this->tcgp_helper->get_cards_from_set( 2377, 1, 152 );
 
 		WP_CLI::log( 'Creating object...' );
-		$card = new Model\TcgPlayerCard( $tcgp_cards[0] );
+		$card = new Model\TcgPlayerCard( $tcgp_cards[0], $this->tcgp_helper );
 
 		WP_CLI::log( print_r( $card->debug_dump(), true ) );
 
@@ -67,7 +69,7 @@ class CLICommand extends \WP_CLI_Command {
 		$tcgp_cards = $this->tcgp_helper->get_cards_from_set( 2377, 1, 200 );
 
 		WP_CLI::log( 'Creating object...' );
-		$card = new Model\TcgPlayerCard( $tcgp_cards[0] );
+		$card = new Model\TcgPlayerCard( $tcgp_cards[0], $this->tcgp_helper );
 
 		WP_CLI::log( print_r( $card->debug_dump(), true ) );
 	}
@@ -81,7 +83,7 @@ class CLICommand extends \WP_CLI_Command {
 
 		while ( ! empty( $cards ) ) {
 			foreach ( $cards as $card ) {
-				$new_card = new TcgPlayerCard( $card );
+				$new_card = new TcgPlayerCard( $card, $this->tcgp_helper );
 
 				$this->import_single_card( $new_card );
 				WP_CLI::success( 'Imported ' . $card->name );

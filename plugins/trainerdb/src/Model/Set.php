@@ -32,7 +32,7 @@ class Set {
 	 * @since 0.1.0
 	 *
 	 * @param WP_Term $term WP_Term to create this Set from.
-	 * @throws Exception Thrown if $term is not a Set.
+	 * @throws \Exception Thrown if $term is not a Set.
 	 */
 	public function __construct( WP_Term $term ) {
 		if ( 'set' !== $term->taxonomy ) {
@@ -54,19 +54,30 @@ class Set {
 	 * @param TcgPlayerHelper $helper Initialized TCGPlayerHelper to make the API call.
 	 * @return Set new Set object
 	 */
-	public static function create_from_tcg_player_id( $tcgp_id, $helper = null ) {
+	public static function create_from_tcg_player_id( $tcgp_id, $helper ) {
+		// echo 'create_from_tcg_player_id $tcgp_id = ' . $tcgp_id . "\n";
 		$term_query = new \WP_Term_Query( [
-			'taxonomy'   => [ 'set' ],
+			'taxonomy'   => 'set',
+			'hide_empty' => false,
 			'meta_key'   => 'tcgp_id',
 			'meta_value' => $tcgp_id,
 		] );
+		$terms = $term_query->get_terms();
+		// echo 'create_from_tcg_player_id get_terms' . "\n";
+		// print_r( $terms ); 
 
-		if ( ! empty( $term_query ) && ! is_wp_error( $term_query ) ) {
-			foreach ( $term_query->get_terms() as $set ) {
+		// \WP_CLI::error('Stop!');
+
+		if ( ! empty( $terms ) && ! is_wp_error( $term_query ) ) {
+			foreach ( $terms as $set ) {
+				// echo 'create_from_tcg_player_id Set from WP' . "\n";
+				// print_r( $set );
 				return new Set( $set );
 			}
 		} else {
 			$tcgp_set = $helper->get_set_info( $tcgp_id );
+			// echo 'create_from_tcg_player_id get_set_info' . "\n";
+			// print_r( $tcgp_set );
 
 			$new_term = self::create_new_term( $tcgp_set->abbreviation, $tcgp_set->name );
 			update_term_meta( $new_term->id, 'tcgp_id', $tcgp_id );
@@ -101,5 +112,13 @@ class Set {
 		}
 
 		return $wp_term;
+	}
+
+	public function get_prefix() : string {
+		return get_term_meta( $this->term->term_id, 'prefix', true );
+	}
+
+	public function get_term_id() : string {
+		return $this->term->term_id;
 	}
 }

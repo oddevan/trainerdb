@@ -39,6 +39,14 @@ class TcgPlayerCard extends Card {
 	private $is_reverse = false;
 
 	/**
+	 * Store the Set object for this card
+	 *
+	 * @since 0.1.0
+	 * @var Set $set
+	 */
+	private $set;
+
+	/**
 	 * Construct a Card from a parsed TCGPlayer API response
 	 *
 	 * @since 0.1.0
@@ -46,9 +54,13 @@ class TcgPlayerCard extends Card {
 	 *
 	 * @param object $tcgp_api_response Parsed JSON from TCGPlayer.
 	 */
-	public function __construct( $tcgp_api_response ) {
+	public function __construct( $tcgp_api_response, $tcgp_helper ) {
 		$this->api_response    = $tcgp_api_response;
 		$this->card_attributes = $this->parse_tcg_card_info( $tcgp_api_response );
+		$this->set             = Set::create_from_tcg_player_id( $this->api_response->groupId, $tcgp_helper );
+		if ( ! $this->set ) {
+			throw new Exception();
+		}
 	}
 
 	/**
@@ -229,7 +241,7 @@ class TcgPlayerCard extends Card {
 	 * @return string Slug for this card
 	 */
 	public function get_slug() : string {
-		return 'CEC' . $this->get_card_number() . ( $this->get_reverse_holo() ? 'r' : '' );
+		return $this->set->get_prefix() . $this->get_card_number() . ( $this->get_reverse_holo() ? 'r' : '' );
 	}
 
 	/**
@@ -240,8 +252,8 @@ class TcgPlayerCard extends Card {
 	 *
 	 * @return Set Set this card belongs to
 	 */
-	public function get_set() {
-		return Set::create_from_tcg_player_id( $this->api_response->groupId, null );
+	public function get_set( $get_post_args = false ) {
+		return $get_post_args ? $this->set->get_term_id() : $this->set;
 	}
 
 	/**

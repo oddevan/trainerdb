@@ -71,9 +71,9 @@ abstract class Card {
 	 * @since 0.1.0
 	 * @author Evan Hildreth <me@eph.me>
 	 *
-	 * @return Set Set this card belongs to
+	 * @return Set|int Set this card belongs to
 	 */
-	abstract public function get_set();// : Set;
+	abstract public function get_set( $get_post_args = false );
 
 	/**
 	 * Card number within its set
@@ -216,6 +216,9 @@ abstract class Card {
 			'post_title'  => $this->get_title(),
 			'post_status' => 'publish',
 			'post_name'   => $this->get_slug(),
+			'tax_input'   => [
+				'set' => [ $this->get_set( true ) ],
+			],
 			'meta_input'  => [
 				'card_number'         => $this->get_card_number(),
 				'reverse_holographic' => $this->get_reverse_holo(),
