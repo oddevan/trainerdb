@@ -24,3 +24,8 @@ $plugin->run();
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	\WP_CLI::add_command( 'trainerdb', new CLICommand() );
 }
+
+register_activation_hook( __FILE__, function() {
+	$db = new Database\Installer();
+	$db->create_library_table();
+} );
