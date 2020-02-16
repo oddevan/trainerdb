@@ -46,13 +46,18 @@ class TcgPlayerCard extends Card {
 	 */
 	private $set;
 
+	private $sku = '';
+	private $parallel_sku = '';
+
 	/**
 	 * Construct a Card from a parsed TCGPlayer API response
 	 *
 	 * @since 0.1.0
 	 * @author Evan Hildreth <me@eph.me>
 	 *
-	 * @param object $tcgp_api_response Parsed JSON from TCGPlayer.
+	 * @param object          $tcgp_api_response Parsed JSON from TCGPlayer.
+	 * @param TCGPlayerHelper $tcgp_helper Object to query TCGPlayer API.
+	 * @throws Exception When Set cannot be created.
 	 */
 	public function __construct( $tcgp_api_response, $tcgp_helper ) {
 		$this->api_response    = $tcgp_api_response;
@@ -61,6 +66,7 @@ class TcgPlayerCard extends Card {
 		if ( ! $this->set ) {
 			throw new Exception();
 		}
+		$this->parse_printings_and_skus();
 	}
 
 	/**
@@ -127,13 +133,26 @@ class TcgPlayerCard extends Card {
 	 */
 	private function normalize_title( string $raw_title ) : string {
 		$clean_title = $raw_title;
-		$delimiters  = [ '(', '-' ];
+		$delimiters  = [ '(', ' -' ];
 		foreach ( $delimiters as $delimiter ) {
 			if ( strpos( $clean_title, $delimiter ) > 0 ) {
 				$clean_title = substr( $clean_title, 0, strpos( $clean_title, $delimiter ) );
 			}
 		}
 		return $clean_title;
+	}
+
+	private function parse_printings_and_skus() {
+		$printings = array_filter( $this->api_response->skus, function( $value ) {
+			return 1 === $value->languageId && 1 === $value->conditionId; //phpcs:ignore
+		});
+		foreach ( $printings as $sku ) {
+			if ( 77 === $sku->printingId ) { //phpcs:ignore
+				$this->parallel_sku = $sku->skuId; //phpcs:ignore
+			} else {
+				$this->sku = $sku->skuId; //phpcs:ignore
+			}
+		}
 	}
 
 	/**
@@ -145,15 +164,7 @@ class TcgPlayerCard extends Card {
 	 * @return bool true if card has a parallel set printing
 	 */
 	public function has_parallel_printing() : bool {
-		$printings = array_filter( $this->api_response->skus, function( $value ) {
-			return 1 === $value->languageId && 1 === $value->conditionId; //phpcs:ignore
-		});
-		foreach ( $printings as $sku ) {
-			if ( 77 === $sku->printingId ) { //phpcs:ignore
-				return true;
-			}
-		}
-		return false;
+		return $this->parallel_sku ? true : false;
 	}
 
 	/**
@@ -162,10 +173,27 @@ class TcgPlayerCard extends Card {
 	 * @since 0.1.0
 	 * @author Evan Hildreth <me@eph.me>
 	 *
-	 * @param bool $is_reverse true if card has a parallel set printing.
+	 * @param bool $is_reverse true if card is a parallel set printing.
 	 */
 	public function set_parallel_printing( bool $is_reverse ) {
-		$this->is_reverse = is_reverse;
+		$this->is_reverse = $this->has_parallel_printing() && $is_reverse;
+	}
+
+	/**
+	 * Get the TCGPlayer SKU for this card. We are assuming "Near Mint"
+	 * condition.
+	 *
+	 * @since 0.1.0
+	 * @author Evan Hildreth <me@eph.me>
+	 *
+	 * @return string TCGPlayer SKU for this printing
+	 */
+	public function get_tcgplayer_sku() {
+		return $this->get_reverse_holo() ? $this->parallel_sku : $this->sku;
+	}
+
+	public function get_tcgplayer_url() {
+		return $this->api_response->url;
 	}
 
 	/**
@@ -177,7 +205,14 @@ class TcgPlayerCard extends Card {
 	 * @return int WordPress Post ID
 	 */
 	public function get_post_id() : int {
-		return 0;
+		$check_query = new \WP_Query( [
+			'meta_key'   => 'tcgp_sku',
+			'meta_value' => $this->get_tcgplayer_sku(),
+			'post_type'  => 'card',
+			'fields'     => 'ids',
+		] );
+
+		return $check_query->post_count > 0 ? $check_query->posts[0] : 0;
 	}
 
 	/**
@@ -241,7 +276,7 @@ class TcgPlayerCard extends Card {
 	 * @return string Slug for this card
 	 */
 	public function get_slug() : string {
-		return $this->set->get_prefix() . $this->get_card_number() . ( $this->get_reverse_holo() ? 'r' : '' );
+		return $this->set->get_prefix() . '-' . $this->get_card_number() . ( $this->get_reverse_holo() ? '-r' : '' );
 	}
 
 	/**
@@ -445,40 +480,10 @@ class TcgPlayerCard extends Card {
 	 */
 	public function get_post_args() : array {
 		$args = parent::get_post_args();
-		unset( $args['id'] );
-		return $args;
-	}
 
-	/**
-	 * Get info for debugging
-	 *
-	 * @author Evan Hildreth <me@eph.me>
-	 * @since 0.1.0
-	 *
-	 * @return array associative array for print_r
-	 */
-	public function debug_dump() {
-		return [
-			'Set'                 => $this->get_set(),
-			'post_title'          => $this->get_title(),
-			'post_name'           => $this->get_slug(),
-			'card_number'         => $this->get_card_number(),
-			'card_type'           => $this->get_card_type(),
-			'energy_type'         => $this->get_energy_type(),
-			'reverse_holographic' => $this->has_parallel_printing(),
-			'card_text'           => $this->get_card_text(),
-			'hp'                  => $this->get_hp(),
-			'evolves_from'        => $this->get_evolves_from(),
-			'retreat_cost'        => $this->get_retreat_cost(),
-			'weakness_type'       => $this->get_weakness_type(),
-			'weakness_mod'        => $this->get_weakness_mod(),
-			'resistance_type'     => $this->get_resistance_type(),
-			'resistance_mod'      => $this->get_resistance_mod(),
-			'attacks'             => $this->get_attacks( true ),
-			'ability'             => $this->get_ability(),
-			'printings'           => array_filter( $this->api_response->skus, function( $value ) {
-				return 1 === $value->languageId && 1 === $value->conditionId; //phpcs:ignore
-			}),
-		];
+		$args['meta_input']['tcgp_sku'] = $this->get_tcgplayer_sku();
+		$args['meta_input']['tcgp_url'] = $this->get_tcgplayer_url();
+
+		return $args;
 	}
 }
