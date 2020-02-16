@@ -33,6 +33,6 @@ class Installer {
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
 
-		add_option( 'trainerdb_db_version', $this->db_version );
+		update_option( 'trainerdb_db_version', $this->db_version );
 	}
 }
