@@ -72,11 +72,43 @@ class CLICommand extends \WP_CLI_Command {
 		WP_CLI::log( print_r( $card, true ) );
 	}
 
+	public function import_set( $args, $assoc_args ) {
+		if ( ! $args && ! $assoc_args['all'] ) {
+			WP_CLI::error( 'Please specifiy a set slug to import, or `--all` to import all available.' );
+		}
+
+		$set_ids = [];
+		if ( $assoc_args['all'] ) {
+			$set_ids = get_terms( array(
+				'taxonomy'   => 'set',
+				'hide_empty' => false,
+				'fields'     => 'ids',
+				'meta_query' => [
+					'relation' => 'AND',
+					[
+						'key'     => 'tcgp_id',
+						'compare' => '>',
+						'value'   => 0,
+					],
+				],
+			) );
+		} else {
+			foreach ( $args as $set_slug ) {
+				$tax       = get_term_by( 'slug', sanitize_title( $set_slug ), 'set' );
+				$set_ids[] = $tax ? $tax->term_id : null;
+			}
+		}
+
+		foreach ( $set_ids as $set_id ) {
+			$this->import_single_set( $set_id );
+		}
+	}
+
 	/** Load cards into the database */
-	public function load_cards() {
+	private function import_single_set( $set_id ) {
 		$quantity = 100;
 		$offset   = 0;
-		$tcgp_set = 2534;
+		$tcgp_set = get_term_meta( $set_id, 'tcgp_id', true );
 		$cards    = $this->tcgp_helper->get_cards_from_set( $tcgp_set, $quantity, $offset );
 
 		while ( ! empty( $cards ) ) {
