@@ -301,11 +301,15 @@ class TcgPlayerCard extends Card {
 	 * @return string Card number for this card
 	 */
 	public function get_card_number() : string {
-		$card_number = $this->card_attributes->card_number;
+		$card_number    = $this->card_attributes->card_number;
+		$number_matches = [];
 		if ( strpos( $card_number, '/' ) > 0 ) {
 			$card_number = substr( $card_number, 0, strpos( $card_number, '/' ) );
 		}
-		return is_null( $card_number ) ? 0 : $card_number;
+		if ( preg_match( '/([a-z]+)0+([1-9]+)/', strtolower( $card_number ), $number_matches ) ) {
+			$card_number = $number_matches[1] . $number_matches[2];
+		}
+		return $card_number ?? 0;
 	}
 
 	/**

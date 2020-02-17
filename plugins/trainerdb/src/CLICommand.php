@@ -46,30 +46,14 @@ class CLICommand extends \WP_CLI_Command {
 	 */
 	public function test() {
 		WP_CLI::log( 'Querying TCGPlayer...' );
-		$tcgp_cards = $this->tcgp_helper->get_cards_from_set( 2534, 3, 0 );
+		$tcgp_cards = $this->tcgp_helper->get_cards_from_set( 2545, 3, 0 );
 
 		foreach ( $tcgp_cards as $tcgp_card ) {
 			WP_CLI::log( 'Creating object...' );
 			$card = new Model\TcgPlayerCard( $tcgp_card, $this->tcgp_helper );
 
-			WP_CLI::log( print_r( $card, true ) );
+			WP_CLI::log( print_r( $card->get_post_args(), true ) );
 		}
-
-		WP_CLI::log( 'Querying TCGPlayer...' );
-		$tcgp_cards = $this->tcgp_helper->get_cards_from_set( 2377, 1, 152 );
-
-		WP_CLI::log( 'Creating object...' );
-		$card = new Model\TcgPlayerCard( $tcgp_cards[0], $this->tcgp_helper );
-
-		WP_CLI::log( print_r( $card, true ) );
-
-		WP_CLI::log( 'Querying TCGPlayer...' );
-		$tcgp_cards = $this->tcgp_helper->get_cards_from_set( 2377, 1, 200 );
-
-		WP_CLI::log( 'Creating object...' );
-		$card = new Model\TcgPlayerCard( $tcgp_cards[0], $this->tcgp_helper );
-
-		WP_CLI::log( print_r( $card, true ) );
 	}
 
 	public function import_set( $args, $assoc_args ) {
