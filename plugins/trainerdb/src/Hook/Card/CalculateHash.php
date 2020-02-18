@@ -39,7 +39,7 @@ class CalculateHash extends Service {
 
 		$hash_data = [
 			'title'     => get_the_title( $post_id ),
-			'card_text' => get_post_meta( $post_id, 'card_text', true ),
+			'card_text' => sanitize_title( get_post_meta( $post_id, 'card_text', true ) ),
 			'attacks'   => wp_list_pluck( $attack_array, 'name' ),
 		];
 
