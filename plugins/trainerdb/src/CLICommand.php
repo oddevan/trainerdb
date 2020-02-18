@@ -83,13 +83,15 @@ class CLICommand extends \WP_CLI_Command {
 			}
 		}
 
+		$overwrite = $assoc_args['overwrite'] ? true : false;
+
 		foreach ( $set_ids as $set_id ) {
-			$this->import_single_set( $set_id );
+			$this->import_single_set( $set_id, $overwrite );
 		}
 	}
 
 	/** Load cards into the database */
-	private function import_single_set( $set_id ) {
+	private function import_single_set( $set_id, $overwrite ) {
 		$quantity = 100;
 		$offset   = 0;
 		$tcgp_set = get_term_meta( $set_id, 'tcgp_id', true );
@@ -99,13 +101,17 @@ class CLICommand extends \WP_CLI_Command {
 			foreach ( $cards as $card ) {
 				$new_card = new TcgPlayerCard( $card, $this->tcgp_helper );
 
-				$this->import_single_card( $new_card );
-				WP_CLI::success( 'Imported ' . $card->name );
+				if ( $overwrite || $new_card->get_post_id() === 0 ) {
+					$this->import_single_card( $new_card );
+					WP_CLI::success( 'Imported ' . $card->name );
+				}
 
 				if ( $new_card->has_parallel_printing() ) {
 					$new_card->set_parallel_printing( true );
-					$this->import_single_card( $new_card );
-					WP_CLI::success( 'Imported ' . $card->name . ' (Reverse Holo)' );
+					if ( $overwrite || $new_card->get_post_id() === 0 ) {
+						$this->import_single_card( $new_card );
+						WP_CLI::success( 'Imported ' . $card->name . ' (Reverse Holo)' );
+					}
 				}
 			}
 
