@@ -25,6 +25,7 @@ class Library extends Service {
 	 */
 	public function register_hooks() {
 		add_action( 'admin_menu', [ $this, 'admin_menu' ] );
+		add_action( 'admin_post_trainerdb_addtolibrary', [ $this, 'post_add_to_library' ] );
 	}
 
 	/**
@@ -70,7 +71,18 @@ class Library extends Service {
 		<div class="wrap">
 			<h1 class="wp-heading-inline">Add Cards to Library</h1>
 			<hr class="wp-header-end">
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+				<input type="hidden" name="action" value="trainerdb_addtolibrary">
+				<?php wp_nonce_field( 'trainerdb_library_add' ); ?>
+				<?php wp_dropdown_categories( [ 'taxonomy' => 'set', 'hide_if_empty' => false ] ); ?>
+				<button type="submit">Save</button>
+			</form>
 		</div>
 		<?php
+	}
+
+	public function post_add_to_library() {
+		check_admin_referer( 'trainerdb_library_add' );
+		wp_safe_redirect( admin_url( 'admin.php?page=trainerdb_library' ) );
 	}
 }
