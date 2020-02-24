@@ -28,6 +28,7 @@ class TrainerDB extends Plugin {
 		Content\ContentRegistrar::class,
 		Hook\HookRegistrar::class,
 		Page\PageRegistrar::class,
+		Endpoint\EndpointRegistrar::class,
 	];
 
 }
