@@ -8,41 +8,29 @@
 
 namespace oddEvan\TrainerDB\Endpoint\Library;
 
-use WebDevStudios\OopsWP\Structure\Service;
+use WebDevStudios\OopsWP\Structure\Content\ApiEndpoint;
 
 /**
  * Registrar class to register our custom post types
  *
  * @since 0.1.0
  */
-class Add extends Service {
+class Add extends ApiEndpoint {
+	/**
+	 * The endpoint namespace
+	 *
+	 * @var string
+	 * @since 2020-01-30
+	 */
+	protected $namespace = 'trainerdb/v1';
 
 	/**
-	 * Called by Plugin class; register the hooks for this plugin
+	 * The endpoint route
 	 *
-	 * @since 0.1.0
-	 * @author me@eph.me
+	 * @var string
+	 * @since 2020-01-30
 	 */
-	public function register_hooks() {
-		add_action( 'rest_api_init', [ $this, 'register_route' ] );
-	}
-
-	/**
-	 * Register the meta fields for the Card post type
-	 *
-	 * @since 0.1.0
-	 * @author me@eph.me
-	 */
-	public function register_route() {
-		register_rest_route(
-			'trainerdb/v1',
-			'/library/add',
-			[
-				'methods'  => \WP_REST_Server::READABLE,
-				'callback' => [ $this, 'run' ],
-			]
-		);
-	}
+	protected $route = '/library/add';
 
 	/**
 	 * This is our callback function that embeds our phrase in a WP_REST_Response

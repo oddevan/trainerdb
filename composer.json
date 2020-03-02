@@ -23,7 +23,7 @@
 		"wpackagist-plugin/advanced-custom-fields": "^5.8",
 		"wpackagist-theme/wp-bootstrap-starter": "*",
 		"webdevstudios/wds-required-plugins": "^1.2",
-		"webdevstudios/oops-wp": "~0.3.0",
+		"webdevstudios/oops-wp": "dev-feature/rest-api-support",
 		"pokemon-tcg/pokemon-tcg-sdk-php": "^1.2",
 		"wp-graphql/wp-graphql": "^0.3.5",
 		"wp-graphql/wp-graphiql": "^1.0.0",

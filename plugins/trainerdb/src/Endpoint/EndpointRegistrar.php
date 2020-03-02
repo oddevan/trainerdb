@@ -35,9 +35,11 @@ class EndpointRegistrar extends Service {
 	 * @author me@eph.me
 	 */
 	public function register_hooks() {
-		foreach ( $this->endpoints as $hook_class ) {
-			$hook_type = new $hook_class();
-			$hook_type->register_hooks();
-		}
+		add_action( 'rest_api_init', function() {
+			foreach ( $this->endpoints as $hook_class ) {
+				$hook_type = new $hook_class();
+				$hook_type->register_hooks();
+			}
+		});
 	}
 }
