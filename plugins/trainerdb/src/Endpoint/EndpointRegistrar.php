@@ -38,7 +38,7 @@ class EndpointRegistrar extends Service {
 		add_action( 'rest_api_init', function() {
 			foreach ( $this->endpoints as $hook_class ) {
 				$hook_type = new $hook_class();
-				$hook_type->register_hooks();
+				$hook_type->register();
 			}
 		});
 	}
