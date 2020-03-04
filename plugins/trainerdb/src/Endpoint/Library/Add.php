@@ -61,6 +61,12 @@ class Add extends ApiEndpoint {
 	 */
 	public function run( $request = null ) {
 		$data = $request->get_json_params();
-		return new \WP_REST_Response( $data, 200 );
+		$results = [];
+		if ( isset( $data['cards'] ) && is_array( $data['cards'] ) ) {
+			foreach ( $data['cards'] as $card_id => $quantity ) {
+				$results[] = "Added $quantity of $card_id";
+			}
+		}
+		return new \WP_REST_Response( $results, 200 );
 	}
 }
