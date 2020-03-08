@@ -16,35 +16,49 @@ namespace oddEvan\TrainerDB\Database;
  * @since 0.1.0
  */
 class LibraryHelper {
-	public function adjust_quantity( $user_id, $card_id, $quantity ) {
+	/**
+	 * Adjust the quantity of the entry with the given user and card ids. A new
+	 * entry will be created if none already exists.
+	 *
+	 * @param int    $user_id WP User ID of the user's library.
+	 * @param string $card_id Slug of the card in question.
+	 * @param int    $quantity Signed integer of how to adjust the quantity.
+	 * @return int New quantity.
+	 */
+	public function adjust_quantity( $user_id, $card_id, $quantity ) : int {
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'tdb_library';
 
-		if ( $wpdb->query( $wpdb->prepare(
-			'SELECT 1 FROM wp_tdb_library WHERE `user_id`=%d AND `card_id`=%s',
+		$existing_entry = $wpdb->get_row( $wpdb->prepare(
+			"SELECT * FROM $table_name WHERE `user_id`=%d AND `card_id`=%s", //phpcs:ignore
 			$user_id,
 			$card_id
-		) ) ) {
+		) );
+
+		if ( null !== $existing_entry ) {
+			$new_quantity = $quantity + $existing_entry->quantity;
+
 			$wpdb->update(
 				$table_name,
-				[ 'quantity' => $quantity ],
-				[
-					'user_id' => $user_id,
-					'card_id' => $card_id,
-				],
+				[ 'quantity' => $new_quantity ],
+				[ 'id' => $existing_entry->id ],
 				[ '%d' ],
-				[ '%d', '%s' ]
+				[ '%d' ]
 			);
-		} else {
-			$wpdb->insert(
-				$table_name,
-				[
-					'user_id'  => $user_id,
-					'card_id'  => $card_id,
-					'quantity' => $quantity,
-				],
-				[ '%d', '%s', '%d' ]
-			);
+
+			return $new_quantity;
 		}
+
+		$wpdb->insert(
+			$table_name,
+			[
+				'user_id'  => $user_id,
+				'card_id'  => $card_id,
+				'quantity' => $quantity,
+			],
+			[ '%d', '%s', '%d' ]
+		);
+
+		return $quantity;
 	}
 }
