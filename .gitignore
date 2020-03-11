@@ -1,6 +1,7 @@
 /plugins/*
 !/plugins/index.php
 !/plugins/trainerdb/
+!/plugins/tdb-demo-block/
 /vendor/*
 /mu-plugins/*
 !/mu-plugins/trainerdb-required.php
