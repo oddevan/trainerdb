@@ -25,6 +25,7 @@ class HookRegistrar extends Service {
 	 * @since 0.1.0
 	 */
 	protected $subhooks = [
+		Assets\LibraryPage::class,
 		Card\ACF::class,
 		Card\GraphQLMeta::class,
 		Card\CalculateHash::class,
