@@ -32,7 +32,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"oddEvan\\TrainerDB\\": "plugins/trainerdb/src/"
+			"oddEvan\\TrainerDB\\": "plugins/trainerdb/lib/"
 		}
 	},
 	"extra": {
