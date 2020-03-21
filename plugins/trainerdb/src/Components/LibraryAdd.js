@@ -1,10 +1,10 @@
 const {
 	i18n: { __ },
-	element: { Component, createRef }
+	components: { Fragment, TextControl },
+	element: { Component },
 } = wp;
 
 class LibraryAdd extends Component {
-	idRef = createRef();
 
 	state = {
 		payload: {
@@ -34,11 +34,18 @@ class LibraryAdd extends Component {
 	
 	render() {
 		return (
-			<ul className="fishes">
-				{Object.keys(this.state.payload.cards).map(key => (
-					<li>{key}x{this.state.payload.cards[key]}</li>
-				))}
-			</ul>
+			<Fragment>
+				<ul className="fishes">
+					{Object.keys(this.state.payload.cards).map(key => (
+						<li>{key} &times; {this.state.payload.cards[key]}</li>
+					))}
+				</ul>
+				<TextControl
+					label={__('Card ID', 'trainerdb')}
+					value={__('Card ID', 'trainerdb')}
+					onChange={ ( newId ) => console.log( { newId } ) }
+				/>
+			</Fragment>
 		);
 	}
 }
