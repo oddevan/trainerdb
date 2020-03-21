@@ -44,7 +44,7 @@ class LibraryPage extends Service {
 		wp_enqueue_script( 
 			'trainerdb-library-add-js',
 			\oddEvan\TrainerDB\_get_plugin_url() . '/build/index.js',
-			[ 'wp-element' ],
+			[ 'wp-element', 'wp-components' ],
 			filemtime( \oddEvan\TrainerDB\_get_plugin_directory() . '/build/index.js' ),
 			true
 		);

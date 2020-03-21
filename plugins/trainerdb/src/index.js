@@ -1,8 +1,8 @@
 const { render } = wp.element;
 
-console.log('Boom!');
+import LibraryAdd from './Components/LibraryAdd';
 
 render(
-	(<p>This is a drill, this is a drill.</p>),
+	(<LibraryAdd />),
 	document.querySelector('div#tdb-library-add-react')
 );
