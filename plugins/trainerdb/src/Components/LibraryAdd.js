@@ -1,6 +1,7 @@
 const {
 	i18n: { __ },
-	components: { Fragment, TextControl },
+	components: { Button, TextControl },
+	compose: { withState },
 	element: { Component },
 } = wp;
 
@@ -8,33 +9,31 @@ class LibraryAdd extends Component {
 
 	state = {
 		payload: {
-			cards: {
-				"ssh-21": 1,
-        "ssh-77": 1,
-				"ssh-98": 1,
-        "ssh-13": 1,
-        "ssh-70": 1,
-        "ssh-27": 1,
-        "ssh-11": 1,
-        "ssh-83": 1,
-        "ssh-33": 2,
-        "ssh-10": 1
-    	}
-		}
+			cards: {}
+		},
+		scratch: ''
 	};
 
-	addToPayload = (card) => {
+	addToPayload = (newId) => {
     // 1. Take a copy of the existing state
     const payload = { ...this.state.payload };
-    // 2. Add our new fish to that fishes variable
-    payload.cards[card.id] = card.quantity;
+		// 2. Add our new fish to that fishes variable
+		if (payload.cards[newId]) {
+			payload.cards[newId] += 1;
+		} else {
+			payload.cards[newId] = 1;
+		}
     // 3. Set the new fishes object to state
     this.setState({ payload });
 	};
+
+	updateScratch = (newId) => {
+		this.setState({ scratch: newId });
+	}
 	
 	render() {
 		return (
-			<Fragment>
+			<div>
 				<ul className="fishes">
 					{Object.keys(this.state.payload.cards).map(key => (
 						<li>{key} &times; {this.state.payload.cards[key]}</li>
@@ -42,10 +41,22 @@ class LibraryAdd extends Component {
 				</ul>
 				<TextControl
 					label={__('Card ID', 'trainerdb')}
-					value={__('Card ID', 'trainerdb')}
-					onChange={ ( newId ) => console.log( { newId } ) }
+					value={this.state.scratch}
+					onChange={this.updateScratch}
 				/>
-			</Fragment>
+				<Button
+					onClick={() => {this.addToPayload(this.state.scratch)}}
+					isDefault
+				>
+					{__('Add Card', 'trainerdb')}
+				</Button>
+				<Button
+					onClick={() => {console.log(this.state.payload)}}
+					isPrimary
+				>
+					{__('Add Cards to Library', 'trainerdb')}
+				</Button>
+			</div>
 		);
 	}
 }
