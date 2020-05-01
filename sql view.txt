@@ -1,0 +1,20 @@
+SELECT
+  wp_posts.post_name AS `id`,
+  wp_posts.post_title AS `title`,
+  (SELECT `meta_value` FROM `wp_postmeta` WHERE `post_id` = `wp_posts`.`id` AND `meta_key` = 'card_number') AS `card_number`,
+  (SELECT `meta_value` FROM `wp_postmeta` WHERE `post_id` = `wp_posts`.`id` AND `meta_key` = 'reverse_holographic') AS `reverse_holographic`,
+--  (SELECT `meta_value` FROM `wp_postmeta` WHERE `post_id` = `wp_posts`.`id` AND `meta_key` = 'card_text') AS `card_text`,
+  (SELECT `meta_value` FROM `wp_postmeta` WHERE `post_id` = `wp_posts`.`id` AND `meta_key` = 'hp') AS `hp`,
+  (SELECT `meta_value` FROM `wp_postmeta` WHERE `post_id` = `wp_posts`.`id` AND `meta_key` = 'evolves_from') AS `evolves_from`,
+  (SELECT `meta_value` FROM `wp_postmeta` WHERE `post_id` = `wp_posts`.`id` AND `meta_key` = 'retreat_cost') AS `retreat_cost`,
+  (SELECT `meta_value` FROM `wp_postmeta` WHERE `post_id` = `wp_posts`.`id` AND `meta_key` = 'weakness_type') AS `weakness_type`,
+  (SELECT `meta_value` FROM `wp_postmeta` WHERE `post_id` = `wp_posts`.`id` AND `meta_key` = 'weakness_mod') AS `weakness_mod`,
+  (SELECT `meta_value` FROM `wp_postmeta` WHERE `post_id` = `wp_posts`.`id` AND `meta_key` = 'resistance_type') AS `resistance_type`,
+  (SELECT `meta_value` FROM `wp_postmeta` WHERE `post_id` = `wp_posts`.`id` AND `meta_key` = 'resistance_mod') AS `resistance_mod`,
+--  (SELECT `meta_value` FROM `wp_postmeta` WHERE `post_id` = `wp_posts`.`id` AND `meta_key` = 'attacks') AS `attacks`,
+  (SELECT `meta_value` FROM `wp_postmeta` WHERE `post_id` = `wp_posts`.`id` AND `meta_key` = 'ability') AS `ability`,
+  (SELECT `meta_value` FROM `wp_postmeta` WHERE `post_id` = `wp_posts`.`id` AND `meta_key` = 'tcgp_sku') AS `tcgp_sku`,
+  (SELECT `meta_value` FROM `wp_postmeta` WHERE `post_id` = `wp_posts`.`id` AND `meta_key` = 'tcgp_url') AS `tcgp_url`
+FROM wp_posts
+WHERE
+  wp_posts.post_type = 'card'
