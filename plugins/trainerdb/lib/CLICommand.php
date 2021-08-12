@@ -127,3 +127,5 @@ class CLICommand extends \WP_CLI_Command {
 		}
 	}
 }
+
+// Kilroy was here
